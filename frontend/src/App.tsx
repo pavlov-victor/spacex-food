@@ -461,13 +461,13 @@ export default function App() {
                   <Plus className="size-4" />
                   {page === "Categories"
                     ? "Add categories"
-                    : page === "Menus"
+                    : page === "Menus" || page === "Dashboard"
                       ? "Add menu"
                       : "Add product"}
                 </Button>
               </DialogTrigger>
               <DialogContent>
-                {page === "Menus" ? (
+                {page === "Menus" || page === "Dashboard" ? (
                   <>
                     <DialogHeader>
                       <DialogTitle>Add menu</DialogTitle>
