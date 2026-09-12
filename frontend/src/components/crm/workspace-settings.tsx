@@ -23,7 +23,7 @@ export function WorkspaceSettings({onClose}:{onClose:()=>void}) {
       {org && <form key={org._id} className="space-y-3" onSubmit={e=>{e.preventDefault();const f=new FormData(e.currentTarget);void perform(async()=>{await flow.updateOrganization({name:String(f.get('name')),context:String(f.get('context'))});const photo=f.get('table');if(photo instanceof File && photo.size)await flow.uploadImage(photo,'table');},'Restaurant settings saved.');}}>
         <Label htmlFor="restaurant-name">Restaurant name</Label><Input id="restaurant-name" name="name" defaultValue={org.name} required maxLength={120}/>
         <Label htmlFor="restaurant-context">Restaurant notes</Label><Textarea id="restaurant-context" name="context" defaultValue={org.context} maxLength={5000}/>
-        <Label htmlFor="restaurant-table">Table photo</Label><Input id="restaurant-table" name="table" type="file" accept="image/jpeg,image/png"/>{org.tableFileId && <p className="text-sm">A table photo is saved. Upload another to replace it.</p>}
+        <Label htmlFor="restaurant-table">Table photo</Label><Input id="restaurant-table" name="table" type="file" accept="image/jpeg,image/png"/>{org.tableFileId && <p className="text-sm">Your photo is saved and appears on the guest menu. It is also used as a table reference for dish images. Upload another to replace it.</p>}
         <Button disabled={busy}>Save restaurant settings</Button>
       </form>}
     </div>}{error && <p role="alert" className="text-destructive">{error}</p>}{notice && <p role="status">{notice}</p>}

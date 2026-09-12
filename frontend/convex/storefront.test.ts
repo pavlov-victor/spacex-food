@@ -22,6 +22,14 @@ test("public snapshots require owner approval, isolate drafts and hide private f
   await owner.mutation(api.storefront.publish, args);
   const snapshot = await t.query(api.storefront.menu, { slug: "test" });
   expect(snapshot?.items[0].tags).toEqual(["Vegan"]);
+  expect(snapshot?.coverImageUrl).toBeNull();
+  await t.run(async ctx => {
+    const storageId = await ctx.storage.store(new Blob(['test photo'], {type:'image/jpeg'}));
+    const tableFileId = await ctx.db.insert('files', {organizationId,storageId,kind:'table',name:'restaurant.jpg',contentType:'image/jpeg',size:10});
+    await ctx.db.patch(organizationId, {tableFileId});
+  });
+  expect((await t.query(api.storefront.menu, {slug:'test'}))?.coverImageUrl).toMatch(/^https?:/);
+
   expect(JSON.stringify(snapshot)).not.toMatch(/PRIVATE|organizationId|sourceJson|menuId/);
   await t.run(ctx => ctx.db.patch(productId, { name: "Unreviewed change" }));
   expect((await t.query(api.storefront.menu, { slug: "test" }))?.items[0].name).toBe("Salad");

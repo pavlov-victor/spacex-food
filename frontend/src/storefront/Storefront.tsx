@@ -19,11 +19,12 @@ function Menu() {
   const categories = ["All dishes", ...new Set(menu.items.map(item => item.category))];
   const filtered = menu.items.filter(item => category === "All dishes" || item.category === category);
   const dish = menu.items.find(item => item.id === selected);
+  const coverImageUrl = menu.coverImageUrl ?? (menu.demo ? "/menu/restaurant.jpg" : null);
   return <main className="storefront">
     <header className="sf-top"><a href={`/menu/${slug}`} className="sf-logo">{menu.name.toLowerCase()}<span>●</span></a><span className="sf-top-label">GOOD FOOD. GOOD COMPANY.</span><span className="sf-menu-label">THE MENU <ArrowUpRight size={15} /></span></header>
-    <section className={`sf-hero ${menu.demo ? "" : "sf-hero-plain"}`}>
+    <section className={`sf-hero ${coverImageUrl ? "" : "sf-hero-plain"}`}>
       <div className="sf-hero-copy"><h1>Come hungry.<br /><em>Leave happy.</em></h1></div>
-      {menu.demo && <div className="sf-hero-photo"><img src="/menu/restaurant.jpg" alt="Warm restaurant interior with wooden tables" /></div>}
+      {coverImageUrl && <div className="sf-hero-photo"><img src={coverImageUrl} alt={`${menu.name} restaurant`} /></div>}
     </section>
     <section className="sf-browse" aria-label="Menu categories">
       <nav className="sf-categories" aria-label="Categories">{categories.map(c => <button key={c} aria-pressed={category === c} onClick={() => setCategory(c)}>{c}<span>{c === "All dishes" ? menu.items.length : menu.items.filter(i => i.category === c).length}</span></button>)}</nav>

@@ -6,12 +6,16 @@ import { publicItem } from "./storefrontSchema";
 
 export const menu = query({
   args: { slug: v.string() },
-  returns: v.union(v.null(), v.object({ name: v.string(), demo: v.boolean(), items: v.array(v.object({ id: v.string(), ...publicItem })) })),
+  returns: v.union(v.null(), v.object({ name: v.string(), demo: v.boolean(), coverImageUrl: v.union(v.string(), v.null()), items: v.array(v.object({ id: v.string(), ...publicItem })) })),
   handler: async (ctx, { slug }) => {
     const menu = await ctx.db.query("publicMenus").withIndex("by_slug", q => q.eq("slug", slug)).unique();
     if (!menu?.published) return null;
     const items = await ctx.db.query("publicMenuItems").withIndex("by_menu", q => q.eq("publicMenuId", menu._id)).take(250);
-    return { name: menu.name, demo: menu.demo, items: items.map(({ _id, _creationTime: _time, publicMenuId: _menu, ...item }) => ({ id: _id, ...item })) };
+    const restaurant = await ctx.db.get(menu.organizationId);
+    const cover = restaurant?.tableFileId ? await ctx.db.get(restaurant.tableFileId) : null;
+    const coverImageUrl = cover?.organizationId === menu.organizationId && cover.kind === 'table'
+      ? await ctx.storage.getUrl(cover.storageId) : null;
+    return { name: menu.name, demo: menu.demo, coverImageUrl, items: items.map(({ _id, _creationTime: _time, publicMenuId: _menu, ...item }) => ({ id: _id, ...item })) };
   },
 });
 
