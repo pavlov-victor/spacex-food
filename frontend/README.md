@@ -16,3 +16,7 @@ Menus, Categories, and Org settings have explicit placeholder screens awaiting r
 UI setup follows https://ui.shadcn.com/docs/installation/vite.
 
 Browser checks: `npx playwright install chromium` then `npx playwright test`. Alternatively, use installed Chrome: `PLAYWRIGHT_CHANNEL=chrome npx playwright test`.
+
+Deployment: [Render + Convex](../docs/deployment.md).
+Team ownership and hook contract: [UI / data boundaries](../docs/team-development.md).
+Data access lives in `src/data/`, validation/types in `src/domain/`, and React operations in `src/hooks/`. Convex is installed but not connected; the current implementation uses localStorage.

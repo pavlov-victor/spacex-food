@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useProducts } from "@/hooks/use-products";
+import { filterProducts } from "@/domain/product";
+import { chartData } from "@/fixtures/dashboard";
 import type { FormEvent } from "react";
 import {
   BarChart3,
@@ -49,40 +52,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-type Product = {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  description: string;
-};
-const storageKey = "spacex-food-products-v1";
-function readProducts(): Product[] {
-  try {
-    const value: unknown = JSON.parse(localStorage.getItem(storageKey) || "[]");
-    return Array.isArray(value)
-      ? value.filter(
-          (p): p is Product =>
-            p &&
-            typeof p.id === "string" &&
-            typeof p.name === "string" &&
-            typeof p.category === "string" &&
-            typeof p.price === "number" &&
-            typeof p.description === "string",
-        )
-      : [];
-  } catch {
-    return [];
-  }
-}
-const chartData = [
-  { month: "Apr", retention: 24, hours: 58 },
-  { month: "May", retention: 32, hours: 29 },
-  { month: "Jun", retention: 38, hours: 58 },
-  { month: "Jul", retention: 49, hours: 58 },
-  { month: "Aug", retention: 56, hours: 29 },
-  { month: "Sep", retention: 68, hours: 16 },
-];
 const navigation = [
   { name: "Dashboard", icon: LayoutDashboard },
   { name: "Menus", icon: BookOpen },
@@ -225,36 +194,34 @@ export default function App() {
   const [page, setPage] = useState("Dashboard");
   const [mobileNav, setMobileNav] = useState(false);
   const [open, setOpen] = useState(false);
-  const [products, setProducts] = useState(readProducts);
+  const {
+    products,
+    isLoading,
+    isSaving,
+    error: productsError,
+    createProduct,
+  } = useProducts();
   const [notice, setNotice] = useState("");
+  const [productFormError, setProductFormError] = useState("");
   const [loggedOut, setLoggedOut] = useState(false);
   const [search, setSearch] = useState("");
-  function addProduct(event: FormEvent<HTMLFormElement>) {
+  const visibleProducts = filterProducts(products, search);
+  async function addProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setProductFormError("");
     const form = new FormData(event.currentTarget);
-    const name = String(form.get("name") || "").trim();
-    const category = String(form.get("category") || "").trim();
-    const price = Number(form.get("price"));
-    if (!name || !category || !Number.isFinite(price) || price < 0) return;
-    const next = [
-      ...products,
-      {
-        id: crypto.randomUUID(),
-        name,
-        category,
-        price,
-        description: String(form.get("description") || "").trim(),
-      },
-    ];
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(next));
-    } catch {
-      setNotice("Could not save the product. Browser storage is unavailable.");
+    const result = await createProduct({
+      name: String(form.get("name") || ""),
+      category: String(form.get("category") || ""),
+      price: Number(form.get("price")),
+      description: String(form.get("description") || ""),
+    });
+    if (!result.ok) {
+      setProductFormError(result.error);
       return;
     }
-    setProducts(next);
     setOpen(false);
-    setNotice(`${name} added to your products.`);
+    setNotice(`${result.product.name} added to your products.`);
   }
   if (loggedOut)
     return (
@@ -362,7 +329,13 @@ export default function App() {
                       : "Your restaurant workspace."}
               </p>
             </div>
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog
+              open={open}
+              onOpenChange={(value) => {
+                setOpen(value);
+                setProductFormError("");
+              }}
+            >
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="size-4" />
@@ -377,6 +350,11 @@ export default function App() {
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={addProduct} className="space-y-4">
+                  {productFormError && (
+                    <p role="alert" className="text-sm text-destructive">
+                      {productFormError}
+                    </p>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="name">Product name</Label>
                     <Input
@@ -433,12 +411,19 @@ export default function App() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">Save product</Button>
+                    <Button type="submit" disabled={isLoading || isSaving}>
+                      {isSaving ? "Saving…" : "Save product"}
+                    </Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
             </Dialog>
           </div>
+          {productsError && (
+            <p role="alert" className="mb-4 text-sm text-destructive">
+              {productsError}
+            </p>
+          )}
           {notice && (
             <div
               role="status"
@@ -529,7 +514,14 @@ export default function App() {
                 />
               </CardHeader>
               <CardContent>
-                {products.length === 0 ? (
+                {isLoading ? (
+                  <p
+                    role="status"
+                    className="py-12 text-center text-sm text-muted-foreground"
+                  >
+                    Loading products…
+                  </p>
+                ) : products.length === 0 ? (
                   <p className="py-12 text-center text-sm text-muted-foreground">
                     No products added yet. Add your first dish to get started.
                   </p>
@@ -544,29 +536,23 @@ export default function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {products
-                          .filter((p) =>
-                            p.name.toLowerCase().includes(search.toLowerCase()),
-                          )
-                          .map((p) => (
-                            <tr key={p.id} className="border-b last:border-0">
-                              <td className="p-3 font-medium">
-                                {p.name}
-                                <p className="max-w-md text-xs font-normal text-muted-foreground">
-                                  {p.description}
-                                </p>
-                              </td>
-                              <td className="p-3">{p.category}</td>
-                              <td className="whitespace-nowrap p-3 text-right">
-                                {p.price.toLocaleString("sr-RS")} RSD
-                              </td>
-                            </tr>
-                          ))}
+                        {visibleProducts.map((p) => (
+                          <tr key={p.id} className="border-b last:border-0">
+                            <td className="p-3 font-medium">
+                              {p.name}
+                              <p className="max-w-md text-xs font-normal text-muted-foreground">
+                                {p.description}
+                              </p>
+                            </td>
+                            <td className="p-3">{p.category}</td>
+                            <td className="whitespace-nowrap p-3 text-right">
+                              {p.price.toLocaleString("sr-RS")} RSD
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
-                    {products.filter((p) =>
-                      p.name.toLowerCase().includes(search.toLowerCase()),
-                    ).length === 0 && (
+                    {visibleProducts.length === 0 && (
                       <p className="py-8 text-center text-sm text-muted-foreground">
                         No matching products.
                       </p>
