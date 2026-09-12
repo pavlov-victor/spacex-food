@@ -661,6 +661,49 @@ export default function App() {
           {page === "Dashboard" && (
             <>
               <Card
+                className="mb-6 shadow-none !bg-white"
+                style={{ backgroundColor: "#fff" }}
+              >
+                <CardHeader>
+                  <CardTitle>Let's get started</CardTitle>
+                  <CardDescription>
+                    Turn your paper menu into a digital one in three steps.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ol className="grid gap-5 sm:grid-cols-3 sm:gap-6">
+                    {[
+                      {
+                        step: "Step 1",
+                        title: "Open the Menus page",
+                        caption: "Find it in the workspace navigation.",
+                      },
+                      {
+                        step: "Step 2",
+                        title: 'Click "Add menu"',
+                        caption: "Give your menu a name guests will recognize.",
+                      },
+                      {
+                        step: "Step 3",
+                        title: "Upload your menu photo",
+                        caption:
+                          'Click "Recognize" and we create the dishes for you.',
+                      },
+                    ].map(({ step, title, caption }) => (
+                      <li key={step}>
+                        <div className="mb-2 text-xs font-medium text-muted-foreground">
+                          {step}
+                        </div>
+                        <div className="text-sm font-medium">{title}</div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {caption}
+                        </p>
+                      </li>
+                    ))}
+                  </ol>
+                </CardContent>
+              </Card>
+              <Card
                 className="mb-6 gap-0 py-0 shadow-none !bg-white"
                 style={{ backgroundColor: "#fff" }}
               >
