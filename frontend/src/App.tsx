@@ -671,25 +671,25 @@ export default function App() {
                   <ol className="grid gap-5 sm:grid-cols-3 sm:gap-6">
                     {[
                       {
-                        step: "Step 1",
+                        n: 1,
                         title: "Open the Menus page",
                         caption: "Find it in the workspace navigation.",
                       },
                       {
-                        step: "Step 2",
+                        n: 2,
                         title: 'Click "Add menu"',
                         caption: "Give your menu a name guests will recognize.",
                       },
                       {
-                        step: "Step 3",
+                        n: 3,
                         title: "Upload your menu photo",
                         caption:
                           'Click "Recognize" and we create the dishes for you.',
                       },
-                    ].map(({ step, title, caption }) => (
-                      <li key={step}>
-                        <div className="mb-2 text-xs font-medium text-muted-foreground">
-                          {step}
+                    ].map(({ n, title, caption }) => (
+                      <li key={n}>
+                        <div className="mb-3 flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                          {n}
                         </div>
                         <div className="text-sm font-medium text-primary">
                           {title}
