@@ -78,7 +78,8 @@ export default defineSchema({
     activeJobId: v.optional(v.id("jobs")),
   })
     .index("by_organizationId", ["organizationId"])
-    .index("by_organizationId_and_menuId", ["organizationId", "menuId"]),
+    .index("by_organizationId_and_menuId", ["organizationId", "menuId"])
+    .index("by_categoryId", ["categoryId"]),
   cards: defineTable({
     organizationId: v.id("organizations"),
     productId: v.id("products"),

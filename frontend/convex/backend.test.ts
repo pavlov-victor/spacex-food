@@ -150,6 +150,30 @@ describe("organization boundaries", () => {
       }),
     ).toHaveLength(0);
   });
+  test("deleteCategory removes the category and its dishes", async () => {
+    const s = await setup();
+    const extras = await s.owner.query(api.catalog.categories, {
+      organizationId: s.organizationId,
+    });
+    expect(extras).toHaveLength(1);
+    await s.owner.mutation(api.catalog.deleteCategory, {
+      organizationId: s.organizationId,
+      categoryId: extras[0]!._id,
+    });
+    expect(
+      await s.owner.query(api.catalog.categories, {
+        organizationId: s.organizationId,
+      }),
+    ).toHaveLength(0);
+    expect(
+      (
+        await s.owner.query(api.catalog.products, {
+          organizationId: s.organizationId,
+          paginationOpts: { numItems: 10, cursor: null },
+        })
+      ).page,
+    ).toHaveLength(0);
+  });
 });
 describe("durable jobs", () => {
   test("import is idempotent and completion cannot insert twice", async () => {

@@ -18,6 +18,7 @@ export function useMenuWorkflows() {
     updateProduct = useMutation(api.catalog.updateProduct),
     applyCard = useMutation(api.catalog.applyCard),
     createCategory = useMutation(api.catalog.createCategory),
+    deleteCategory = useMutation(api.catalog.deleteCategory),
     deleteProduct = useMutation(api.catalog.deleteProduct),
     renameMenu = useMutation(api.catalog.renameMenu);
   const menus = useQuery(
@@ -63,6 +64,8 @@ export function useMenuWorkflows() {
     generateAll: (menuId: Id<"menus">) => generateAll({menuId}),
     uploadMenuFile: (file: File) => uploadImage(file, "menu"),
     deleteProduct: (productId: Id<"products">) => deleteProduct({ organizationId: org(), productId }),
+    deleteCategory: (categoryId: Id<"categories">) =>
+      deleteCategory({ organizationId: org(), categoryId }),
     renameMenu: (menuId: Id<"menus">, name: string) => renameMenu({menuId, name}),
     createCategory: (name: string) => createCategory({organizationId: org(), name}),
     applyCard: (input: Omit<FunctionArgs<typeof api.catalog.applyCard>, "organizationId">) =>

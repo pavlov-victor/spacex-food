@@ -5,6 +5,7 @@ import { v } from "convex/values";
 import { requireOrganization, boundedText } from "./lib/access";
 import { object } from "./lib/dify";
 import { confirmed } from "./validators";
+import type { Id } from "./_generated/dataModel";
 export const menus = query({
   args: { organizationId: v.id("organizations") },
   handler: async (ctx, args) => {
@@ -217,6 +218,46 @@ export const createCategory = mutation({
     const name = boundedText(args.name, "Category", 120), key = name.toLocaleLowerCase();
     const existing = await ctx.db.query("categories").withIndex("by_organizationId_and_key", q => q.eq("organizationId", args.organizationId).eq("key", key)).unique();
     return existing?._id ?? await ctx.db.insert("categories", {organizationId:args.organizationId,name,key});
+  },
+});
+
+export const deleteCategory = mutation({
+  args: {
+    organizationId: v.id("organizations"),
+    categoryId: v.id("categories"),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await requireOrganization(ctx, args.organizationId);
+    const category = await ctx.db.get(args.categoryId);
+    if (!category || category.organizationId !== args.organizationId)
+      throw new Error("Category not found.");
+    const products = await ctx.db
+      .query("products")
+      .withIndex("by_categoryId", (q) => q.eq("categoryId", args.categoryId))
+      .take(500);
+    if (products.some((product) => product.activeJobId))
+      throw new Error("Wait for product generation to finish.");
+    const removedByMenu = new Map<Id<"menus">, number>();
+    for (const product of products) {
+      await ctx.db.delete(product._id);
+      if (product.menuId)
+        removedByMenu.set(
+          product.menuId,
+          (removedByMenu.get(product.menuId) ?? 0) + 1,
+        );
+    }
+    for (const [menuId, removed] of removedByMenu) {
+      if (!menuId) continue;
+      const menu = await ctx.db.get(menuId);
+      if (menu)
+        await ctx.db.patch(menuId, {
+          productCount: Math.max(0, menu.productCount - removed),
+        });
+      await invalidateMenuPdf(ctx, menuId);
+    }
+    await ctx.db.delete(args.categoryId);
+    return null;
   },
 });
 

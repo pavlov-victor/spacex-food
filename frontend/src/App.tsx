@@ -20,9 +20,9 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  MoreHorizontal,
   Plus,
   Settings2,
+  Trash2,
   TrendingUp,
   Utensils,
   UtensilsCrossed,
@@ -256,6 +256,7 @@ export default function App() {
 
   const [categoryFormError, setCategoryFormError] = useState("");
   const [menuFormError, setMenuFormError] = useState("");
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const categories = Array.from(
     new Set([
       ...(session.isAuthenticated
@@ -264,6 +265,13 @@ export default function App() {
 
     ]),
   );
+  const categoryRows = session.isAuthenticated
+    ? flow.categories
+    : [
+        { _id: "demo-main", name: "Main dishes" },
+        { _id: "demo-prilog", name: "Prilog" },
+        { _id: "demo-starters", name: "Starters" },
+      ];
   const menus = session.isAuthenticated
     ? flow.menus
     : [{ name: "Main" }, { name: "Secondary" }, { name: "Third" }];
@@ -760,10 +768,42 @@ export default function App() {
                         {visibleProducts.map((p) => (
                           <tr key={p.id} className="border-b last:border-0">
                             <td className="p-3 font-medium">
-                              <button type="button" className="text-left underline underline-offset-4" onClick={() => setSelectedProduct(p.id)}>{p.name}</button>
-                              <p className="max-w-md text-xs font-normal text-muted-foreground">
-                                {p.description}
-                              </p>
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <button type="button" className="text-left underline underline-offset-4" onClick={() => setSelectedProduct(p.id)}>{p.name}</button>
+                                  <p className="max-w-md text-xs font-normal text-muted-foreground">
+                                    {p.description}
+                                  </p>
+                                </div>
+                                {session.isAuthenticated && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    aria-label={`Delete ${p.name}`}
+                                    disabled={removingId === p.id}
+                                    onClick={() => {
+                                      void (async () => {
+                                        setRemovingId(p.id);
+                                        try {
+                                          await flow.deleteProduct(p.id);
+                                          setNotice(`${p.name} removed.`);
+                                        } catch (error) {
+                                          setNotice(
+                                            error instanceof Error
+                                              ? error.message
+                                              : "Could not delete product.",
+                                          );
+                                        } finally {
+                                          setRemovingId(null);
+                                        }
+                                      })();
+                                    }}
+                                  >
+                                    <Trash2 className="size-4" />
+                                  </Button>
+                                )}
+                              </div>
                             </td>
                             <td className="p-3">{p.category}</td>
                             <td className="whitespace-nowrap p-3 text-right">
@@ -844,27 +884,54 @@ export default function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {categories.map((category) => (
-                        <tr key={category} className="border-b last:border-0">
+                      {categoryRows.map((category) => (
+                        <tr key={category._id} className="border-b last:border-0">
                           <td className="p-3">
-                            <div className="flex items-center gap-2">
-                              <Button
+                            <div className="flex items-center justify-between gap-3">
+                              <button
                                 type="button"
-                                variant="ghost"
-                                size="icon-sm"
-                                aria-label={`View products in ${category}`}
+                                className="font-medium text-primary underline-offset-4 hover:underline"
                                 onClick={() => {
-                                  setCategoryFilter(category);
+                                  setCategoryFilter(category.name);
                                   setSearch("");
                                   setPage("Products");
                                   setNotice(
-                                    `Showing products in ${category}.`,
+                                    `Showing products in ${category.name}.`,
                                   );
                                 }}
                               >
-                                <MoreHorizontal className="size-4" />
-                              </Button>
-                              <span className="font-medium">{category}</span>
+                                {category.name}
+                              </button>
+                              {session.isAuthenticated && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  aria-label={`Delete ${category.name}`}
+                                  disabled={removingId === category._id}
+                                  onClick={() => {
+                                    void (async () => {
+                                      setRemovingId(category._id);
+                                      try {
+                                        await flow.deleteCategory(category._id);
+                                        if (categoryFilter === category.name)
+                                          setCategoryFilter("");
+                                        setNotice(`${category.name} removed.`);
+                                      } catch (error) {
+                                        setNotice(
+                                          error instanceof Error
+                                            ? error.message
+                                            : "Could not delete category.",
+                                        );
+                                      } finally {
+                                        setRemovingId(null);
+                                      }
+                                    })();
+                                  }}
+                                >
+                                  <Trash2 className="size-4" />
+                                </Button>
+                              )}
                             </div>
                           </td>
                         </tr>
