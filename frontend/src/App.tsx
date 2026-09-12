@@ -266,11 +266,11 @@ export default function App() {
     ]),
   );
   const categoryRows = session.isAuthenticated
-    ? flow.categories
+    ? flow.categories.map((category) => ({ ...category, persisted: true as const }))
     : [
-        { _id: "demo-main", name: "Main dishes" },
-        { _id: "demo-prilog", name: "Prilog" },
-        { _id: "demo-starters", name: "Starters" },
+        { _id: "demo-main", name: "Main dishes", persisted: false as const },
+        { _id: "demo-prilog", name: "Prilog", persisted: false as const },
+        { _id: "demo-starters", name: "Starters", persisted: false as const },
       ];
   const menus = session.isAuthenticated
     ? flow.menus
@@ -902,7 +902,7 @@ export default function App() {
                               >
                                 {category.name}
                               </button>
-                              {session.isAuthenticated && (
+                              {session.isAuthenticated && category.persisted && (
                                 <Button
                                   type="button"
                                   variant="ghost"
