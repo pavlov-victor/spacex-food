@@ -257,21 +257,29 @@ export default function App() {
   const [categoryFormError, setCategoryFormError] = useState("");
   const [menuFormError, setMenuFormError] = useState("");
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [hiddenCategoryIds, setHiddenCategoryIds] = useState<string[]>([]);
   const categories = Array.from(
     new Set([
       ...(session.isAuthenticated
-        ? flow.categories.map((category) => category.name)
+        ? flow.categories
+            .filter((category) => !hiddenCategoryIds.includes(category._id))
+            .map((category) => category.name)
         : ["Main dishes", "Prilog", "Starters"]),
 
     ]),
   );
-  const categoryRows = session.isAuthenticated
-    ? flow.categories.map((category) => ({ ...category, persisted: true as const }))
-    : [
-        { _id: "demo-main", name: "Main dishes", persisted: false as const },
-        { _id: "demo-prilog", name: "Prilog", persisted: false as const },
-        { _id: "demo-starters", name: "Starters", persisted: false as const },
-      ];
+  const categoryRows = (
+    session.isAuthenticated
+      ? flow.categories.map((category) => ({
+          ...category,
+          persisted: true as const,
+        }))
+      : [
+          { _id: "demo-main", name: "Main dishes", persisted: false as const },
+          { _id: "demo-prilog", name: "Prilog", persisted: false as const },
+          { _id: "demo-starters", name: "Starters", persisted: false as const },
+        ]
+  ).filter((category) => !hiddenCategoryIds.includes(category._id));
   const menus = session.isAuthenticated
     ? flow.menus
     : [{ name: "Main" }, { name: "Secondary" }, { name: "Third" }];
@@ -914,6 +922,11 @@ export default function App() {
                                       setRemovingId(category._id);
                                       try {
                                         await flow.deleteCategory(category._id);
+                                        setHiddenCategoryIds((ids) =>
+                                          ids.includes(category._id)
+                                            ? ids
+                                            : [...ids, category._id],
+                                        );
                                         if (categoryFilter === category.name)
                                           setCategoryFilter("");
                                         setNotice(`${category.name} removed.`);

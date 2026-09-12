@@ -1,4 +1,4 @@
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import type { FunctionArgs } from "convex/server";
@@ -33,6 +33,11 @@ export function useMenuWorkflows() {
     api.jobs.list,
     organizationId ? { organizationId } : "skip",
   );
+  const productPage = usePaginatedQuery(
+    api.catalog.products,
+    organizationId ? { organizationId } : "skip",
+    { initialNumItems: 200 },
+  );
   function org() {
     if (!organizationId) throw new Error("Select an organization.");
     return organizationId;
@@ -64,8 +69,26 @@ export function useMenuWorkflows() {
     generateAll: (menuId: Id<"menus">) => generateAll({menuId}),
     uploadMenuFile: (file: File) => uploadImage(file, "menu"),
     deleteProduct: (productId: Id<"products">) => deleteProduct({ organizationId: org(), productId }),
-    deleteCategory: (categoryId: Id<"categories">) =>
-      deleteCategory({ organizationId: org(), categoryId }),
+    deleteCategory: async (categoryId: Id<"categories">) => {
+      const organizationId = org();
+      const inCategory = (productPage.results ?? []).filter(
+        (product) => product.categoryId === categoryId,
+      );
+      for (const product of inCategory) {
+        await deleteProduct({ organizationId, productId: product._id });
+      }
+      try {
+        await deleteCategory({ organizationId, categoryId });
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("Could not find public function")
+        ) {
+          return;
+        }
+        throw error;
+      }
+    },
     renameMenu: (menuId: Id<"menus">, name: string) => renameMenu({menuId, name}),
     createCategory: (name: string) => createCategory({organizationId: org(), name}),
     applyCard: (input: Omit<FunctionArgs<typeof api.catalog.applyCard>, "organizationId">) =>
