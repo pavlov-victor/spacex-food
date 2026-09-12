@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useProducts } from "@/hooks/use-products";
+import { useSession } from "@/hooks/use-session";
+import { useMenuWorkflows } from "@/hooks/use-menu-workflows";
 import { filterProducts } from "@/domain/product";
 import { chartData } from "@/fixtures/dashboard";
 import type { FormEvent } from "react";
@@ -12,6 +14,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  MoreHorizontal,
   Plus,
   Settings2,
   TrendingUp,
@@ -191,6 +194,8 @@ function Charts() {
   );
 }
 export default function App() {
+  const session = useSession();
+  const flow = useMenuWorkflows();
   const [page, setPage] = useState("Dashboard");
   const [mobileNav, setMobileNav] = useState(false);
   const [open, setOpen] = useState(false);
@@ -203,17 +208,28 @@ export default function App() {
   } = useProducts();
   const [notice, setNotice] = useState("");
   const [productFormError, setProductFormError] = useState("");
-  const [loggedOut, setLoggedOut] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [search, setSearch] = useState("");
-  const visibleProducts = filterProducts(products, search);
-  const [categories, setCategories] = useState([
-    "Main dishes",
-    "Prilog",
-    "Starters",
-  ]);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const visibleProducts = filterProducts(products, search).filter(
+    (p) => !categoryFilter || p.category === categoryFilter,
+  );
+  const [extraCategories, setExtraCategories] = useState<string[]>([]);
   const [categoryFormError, setCategoryFormError] = useState("");
-  const [menus, setMenus] = useState(["Main", "Secondary", "Third"]);
   const [menuFormError, setMenuFormError] = useState("");
+  const categories = Array.from(
+    new Set([
+      ...(session.isAuthenticated
+        ? flow.categories.map((category) => category.name)
+        : ["Main dishes", "Prilog", "Starters"]),
+      ...extraCategories,
+    ]),
+  );
+  const menus = session.isAuthenticated
+    ? flow.menus
+    : [{ name: "Main" }, { name: "Secondary" }, { name: "Third" }];
   async function addProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setProductFormError("");
@@ -244,47 +260,66 @@ export default function App() {
       setCategoryFormError("This category already exists");
       return;
     }
-    setCategories([...categories, categoryName]);
+    setExtraCategories([...extraCategories, categoryName]);
     setOpen(false);
     setNotice(`${categoryName} added to your categories.`);
   }
-  function addMenu(event: FormEvent<HTMLFormElement>) {
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoginError("");
+    const form = new FormData(event.currentTarget);
+    setIsSigningIn(true);
+    try {
+      await session.login(
+        String(form.get("username") || ""),
+        String(form.get("password") || ""),
+      );
+    } catch (error) {
+      setLoginError(
+        error instanceof Error ? error.message : "Could not sign in.",
+      );
+    } finally {
+      setIsSigningIn(false);
+    }
+  }
+  async function addMenu(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMenuFormError("");
     const form = new FormData(event.currentTarget);
     const menuName = String(form.get("name") || "").trim();
+    const files = form
+      .getAll("photos")
+      .filter((file): file is File => file instanceof File && file.size > 0);
     if (!menuName) {
       setMenuFormError("Menu name is required");
       return;
     }
-    if (menus.includes(menuName)) {
-      setMenuFormError("This menu already exists");
+    if (files.length < 1) {
+      setMenuFormError("Add a menu photo so we can recognize dishes.");
       return;
     }
-    setMenus([...menus, menuName]);
-    setOpen(false);
-    setNotice(`${menuName} added to your menus.`);
+    if (files.length > 5) {
+      setMenuFormError("Choose up to 5 photos.");
+      return;
+    }
+    setIsImporting(true);
+    try {
+      const fileIds = await Promise.all(
+        files.map((file) => flow.uploadImage(file, "menu")),
+      );
+      await flow.importMenu(menuName, fileIds);
+      setOpen(false);
+      setNotice(
+        `Recognition started for ${menuName}. Products and categories will appear when it finishes.`,
+      );
+    } catch (error) {
+      setMenuFormError(
+        error instanceof Error ? error.message : "Could not start recognition.",
+      );
+    } finally {
+      setIsImporting(false);
+    }
   }
-  if (loggedOut)
-    return (
-      <div className="flex min-h-svh items-center justify-center p-6">
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <UtensilsCrossed className="mb-4 size-7" />
-            <CardTitle>SpaceX food</CardTitle>
-            <CardDescription>You have left the demo workspace.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" onClick={() => setLoggedOut(false)}>
-              Return to demo
-            </Button>
-            <p className="mt-4 text-center text-xs text-muted-foreground">
-              Authentication will be connected later.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
   return (
     <div className="min-h-svh bg-background text-foreground">
       <header className="flex h-[72px] items-center justify-between border-b px-5 md:px-8">
@@ -306,10 +341,42 @@ export default function App() {
             SpaceX food
           </span>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setLoggedOut(true)}>
-          <LogOut className="size-4" />
-          Log out
-        </Button>
+        {session.isAuthenticated ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void session.logout()}
+          >
+            <LogOut className="size-4" />
+            Log out
+          </Button>
+        ) : (
+          <form
+            onSubmit={handleLogin}
+            className="flex flex-wrap items-center justify-end gap-2"
+          >
+            <Input
+              name="username"
+              aria-label="Username"
+              defaultValue="admin"
+              autoComplete="username"
+              className="h-8 w-28"
+              required
+            />
+            <Input
+              name="password"
+              type="password"
+              aria-label="Password"
+              placeholder="Password"
+              autoComplete="current-password"
+              className="h-8 w-28"
+              required
+            />
+            <Button type="submit" size="sm" disabled={isSigningIn}>
+              {isSigningIn ? "Signing in…" : "Sign in"}
+            </Button>
+          </form>
+        )}
       </header>
       <div className="flex min-h-[calc(100svh-72px)]">
         <aside
@@ -400,7 +467,8 @@ export default function App() {
                     <DialogHeader>
                       <DialogTitle>Add menu</DialogTitle>
                       <DialogDescription>
-                        Add a new menu for your restaurant workspace.
+                        Upload menu photos. Recognition will create products and
+                        categories from the dishes it finds.
                       </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={addMenu} className="space-y-4">
@@ -419,15 +487,32 @@ export default function App() {
                           maxLength={80}
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="menu-photos">Menu photos</Label>
+                        <Input
+                          id="menu-photos"
+                          name="photos"
+                          type="file"
+                          accept="image/jpeg,image/png"
+                          multiple
+                          required
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          JPG or PNG, 1–5 photos, up to 10 MB each.
+                        </p>
+                      </div>
                       <DialogFooter>
                         <Button
                           type="button"
                           variant="outline"
                           onClick={() => setOpen(false)}
+                          disabled={isImporting}
                         >
                           Cancel
                         </Button>
-                        <Button type="submit">Save menu</Button>
+                        <Button type="submit" disabled={isImporting}>
+                          {isImporting ? "Recognizing…" : "Recognize menu"}
+                        </Button>
                       </DialogFooter>
                     </form>
                   </>
@@ -547,6 +632,11 @@ export default function App() {
               </DialogContent>
             </Dialog>
           </div>
+          {loginError && (
+            <p role="alert" className="mb-4 text-sm text-destructive">
+              {loginError}
+            </p>
+          )}
           {productsError && (
             <p role="alert" className="mb-4 text-sm text-destructive">
               {productsError}
@@ -581,13 +671,15 @@ export default function App() {
                     },
                     {
                       title: "Categories",
-                      value: 57,
+                      value: categories.length,
                       icon: FolderOpen,
                       caption: "Keeping your menu organized",
                     },
                     {
                       title: "Products",
-                      value: 168 + products.length,
+                      value: session.isAuthenticated
+                        ? products.length
+                        : 168 + products.length,
                       icon: Utensils,
                       caption: "Dishes, drinks, and everything else",
                     },
@@ -633,13 +725,26 @@ export default function App() {
                   Products saved in this browser. The 168 sample products in
                   dashboard metrics are illustrative.
                 </CardDescription>
-                <Input
-                  className="mt-3 max-w-sm"
-                  aria-label="Search products"
-                  placeholder="Search products…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Input
+                    className="max-w-sm"
+                    aria-label="Search products"
+                    placeholder="Search products…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  {categoryFilter && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setCategoryFilter("")}
+                    >
+                      {categoryFilter}
+                      <X className="size-3.5" />
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -704,22 +809,46 @@ export default function App() {
                     <thead>
                       <tr className="border-b text-muted-foreground">
                         <th className="p-3 font-medium">Menu name</th>
+                        <th className="p-3 font-medium">Status</th>
+                        <th className="p-3 text-right font-medium">Products</th>
                       </tr>
                     </thead>
                     <tbody>
                       {menus.map((menu) => (
-                        <tr key={menu} className="border-b last:border-0">
-                          <td className="p-3 font-medium">{menu}</td>
+                        <tr
+                          key={"_id" in menu ? String(menu._id) : menu.name}
+                          className="border-b last:border-0"
+                        >
+                          <td className="p-3 font-medium">{menu.name}</td>
+                          <td className="p-3 capitalize text-muted-foreground">
+                            {"status" in menu ? menu.status : "draft"}
+                          </td>
+                          <td className="p-3 text-right">
+                            {"productCount" in menu ? menu.productCount : "—"}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                   {menus.length === 0 && (
                     <p className="py-8 text-center text-sm text-muted-foreground">
-                      No menus yet. Add your first menu.
+                      No menus yet. Add a photo to recognize dishes.
                     </p>
                   )}
                 </div>
+                {session.isAuthenticated && flow.jobs.length > 0 && (
+                  <div className="mt-6 border-t pt-4">
+                    <p className="mb-2 text-sm font-medium">Recognition jobs</p>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      {flow.jobs.slice(0, 5).map((job) => (
+                        <li key={job._id}>
+                          {job.kind} · {job.status}
+                          {job.error ? ` — ${job.error}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -742,7 +871,27 @@ export default function App() {
                     <tbody>
                       {categories.map((category) => (
                         <tr key={category} className="border-b last:border-0">
-                          <td className="p-3 font-medium">{category}</td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                                aria-label={`View products in ${category}`}
+                                onClick={() => {
+                                  setCategoryFilter(category);
+                                  setSearch("");
+                                  setPage("Products");
+                                  setNotice(
+                                    `Showing products in ${category}.`,
+                                  );
+                                }}
+                              >
+                                <MoreHorizontal className="size-4" />
+                              </Button>
+                              <span className="font-medium">{category}</span>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

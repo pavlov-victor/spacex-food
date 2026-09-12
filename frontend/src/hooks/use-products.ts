@@ -20,7 +20,7 @@ export function useProducts(menuId?: Id<"menus">) {
   const create = useMutation(api.catalog.createProduct);
   const [isSaving, setSaving] = useState(false);
   const saving = useRef(false);
-  const products: Product[] = page.results.map((p) => ({
+  const products: Product[] = (page.results ?? []).map((p) => ({
     id: p._id,
     name: p.name,
     category: p.category,
