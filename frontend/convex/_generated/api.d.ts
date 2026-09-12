@@ -20,6 +20,7 @@ import type * as lib_daytona from "../lib/daytona.js";
 import type * as lib_dify from "../lib/dify.js";
 import type * as lib_menuPdf from "../lib/menuPdf.js";
 import type * as lib_pdfWorker from "../lib/pdfWorker.js";
+import type * as menuBatch from "../menuBatch.js";
 import type * as menuPdf from "../menuPdf.js";
 import type * as menuPdfState from "../menuPdfState.js";
 import type * as organizations from "../organizations.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   "lib/dify": typeof lib_dify;
   "lib/menuPdf": typeof lib_menuPdf;
   "lib/pdfWorker": typeof lib_pdfWorker;
+  menuBatch: typeof menuBatch;
   menuPdf: typeof menuPdf;
   menuPdfState: typeof menuPdfState;
   organizations: typeof organizations;

@@ -246,6 +246,7 @@ export default function App() {
     dismissedJobCount !== recognitionJobCount;
   const [productFormError, setProductFormError] = useState("");
   const [isImporting, setIsImporting] = useState(false);
+  const [batchBusy,setBatchBusy] = useState(false);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const visibleProducts = filterProducts(products, search).filter(
@@ -805,7 +806,7 @@ export default function App() {
                           key={"_id" in menu ? String(menu._id) : menu.name}
                           className="border-b last:border-0"
                         >
-                          <td className="p-3 font-medium">{menu.name}{"_id" in menu && <div className="mt-2 flex gap-2"><Button size="sm" variant="outline" onClick={() => { setMenuFilter(menu._id); setCategoryFilter(''); setSearch(''); setPage('Products'); }}>View dishes</Button><Button size="sm" variant="outline" disabled={menu.status !== 'draft'} onClick={() => setPublishingMenu({id:menu._id,name:menu.name})}>Publish / QR</Button></div>}</td>
+                          <td className="p-3 font-medium">{menu.name}{"_id" in menu && <div className="mt-2 flex gap-2"><Button size="sm" variant="outline" onClick={() => { setMenuFilter(menu._id); setCategoryFilter(''); setSearch(''); setPage('Products'); }}>View dishes</Button><Button size="sm" variant="outline" disabled={menu.status !== 'draft'} onClick={() => setPublishingMenu({id:menu._id,name:menu.name})}>Publish / QR</Button><Button size="sm" variant="outline" disabled={batchBusy || menu.status !== 'draft'} onClick={async () => {setBatchBusy(true);try{const result=await flow.generateAll(menu._id);setNotice(`Queued ${result.queued} dishes for generation. ${result.skipped} already generated or in progress.`);}catch{setNotice('Could not start generation. Please try again.');}finally{setBatchBusy(false);}}}>{batchBusy?'Starting…':'Generate all cards'}</Button></div>}</td>
                           <td className="p-3 capitalize text-muted-foreground">
                             {"status" in menu ? menu.status : "draft"}
                           </td>

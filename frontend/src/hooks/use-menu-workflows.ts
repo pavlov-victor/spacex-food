@@ -12,6 +12,7 @@ export function useMenuWorkflows() {
   const upload = useAction(api.files.upload),
     startImport = useMutation(api.jobs.importMenu),
     startCard = useMutation(api.jobs.generateCard),
+    generateAll = useMutation(api.menuBatch.generateAll),
     retryJob = useMutation(api.jobs.retry),
     updateOrganization = useMutation(api.organizations.update),
     updateProduct = useMutation(api.catalog.updateProduct),
@@ -59,6 +60,7 @@ export function useMenuWorkflows() {
       !!organizationId &&
       (menus === undefined || categories === undefined || jobs === undefined),
     uploadImage,
+    generateAll: (menuId: Id<"menus">) => generateAll({menuId}),
     uploadMenuFile: (file: File) => uploadImage(file, "menu"),
     deleteProduct: (productId: Id<"products">) => deleteProduct({ organizationId: org(), productId }),
     renameMenu: (menuId: Id<"menus">, name: string) => renameMenu({menuId, name}),

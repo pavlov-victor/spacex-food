@@ -13,11 +13,17 @@ export function publicMenuUrl(slug: string) {
 export function useMenuPublishing(menuId?: Id<"menus">) {
   const { organizationId } = useWorkspace();
   const publishMenu = useMutation(api.storefront.publish);
+  const approveAll = useMutation(api.menuBatch.approveAll);
   const unpublishMenu = useMutation(api.storefront.unpublish);
   const publications = useQuery(api.storefront.publications, organizationId ? { organizationId } : "skip");
   const readiness = useQuery(api.storefront.readiness, organizationId && menuId ? { menuId } : "skip");
   return {
     readiness,
+    async approveAll() {
+      if (!menuId) throw new Error("Select a menu.");
+      try { return await approveAll({menuId}); }
+      catch { throw new Error("Could not approve the cards. Please try again."); }
+    },
     isLoading: !!organizationId && (publications === undefined || (!!menuId && readiness === undefined)),
     publications: (publications ?? []).map(item => ({ ...item, url: publicMenuUrl(item.slug) })),
     async publish(input: FunctionArgs<typeof api.storefront.publish>) {

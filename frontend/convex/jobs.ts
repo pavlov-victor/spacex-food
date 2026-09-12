@@ -92,6 +92,7 @@ export const generateCard = mutation({
     productId: v.id("products"),
     requestId: v.string(),
     dishFileId: v.optional(v.id("files")),
+    queueDelayMs: v.optional(v.number()),
     imagePrompt: v.optional(v.string()),
     restaurantContext: v.optional(v.string()),
     targetLanguages: v.optional(v.string()),
@@ -103,6 +104,8 @@ export const generateCard = mutation({
       args.organizationId,
     );
     boundedText(args.requestId, "Request ID", 100);
+    const delay = args.queueDelayMs ?? 0;
+    if (!Number.isFinite(delay) || delay < 0 || delay > 750000) throw new Error("Invalid queue delay.");
     const existing = await ctx.db
       .query("jobs")
       .withIndex("by_organizationId_and_requestId", (q) =>
@@ -179,7 +182,7 @@ export const generateCard = mutation({
       activeJobId: jobId,
       confirmed: evidence,
     });
-    await ctx.scheduler.runAfter(0, internal.workflows.run, { jobId });
+    await ctx.scheduler.runAfter(delay, internal.workflows.run, { jobId });
     return jobId;
   },
 });
