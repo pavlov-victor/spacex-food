@@ -688,7 +688,7 @@ export default function App() {
                       },
                     ].map(({ n, title, caption }) => (
                       <li key={n}>
-                        <div className="mb-3 flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                        <div className="mb-3 flex size-7 items-center justify-center rounded-full border border-primary bg-transparent text-xs font-semibold text-primary">
                           {n}
                         </div>
                         <div className="text-sm font-medium text-primary">
