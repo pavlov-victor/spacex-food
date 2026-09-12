@@ -14,7 +14,7 @@ test('restaurant controls, product editor and publication QR are connected', asy
   await choice.selectOption(option!);
   await page.keyboard.press('Escape');
   await page.getByRole('button',{name:'Menus',exact:true}).click();
-  await page.getByRole('button',{name:'View dishes',exact:true}).first().click();
+  await page.getByRole('button',{name:'View',exact:true}).first().click();
   await expect(page.getByRole('button',{name:'Show all menus',exact:true})).toBeVisible();
   const dish=page.locator('tbody button').filter({hasText:/Schnitzel/i}).first();
   await dish.click();
@@ -23,7 +23,7 @@ test('restaurant controls, product editor and publication QR are connected', asy
   await expect(page.getByRole('img',{name:'Generated dish draft'})).toBeVisible();
   await page.keyboard.press('Escape');
   await page.getByRole('button',{name:'Menus',exact:true}).click();
-  await page.getByRole('button',{name:'Publish / QR',exact:true}).first().click();
+  await page.getByRole('button',{name:'Publish QR',exact:true}).first().click();
   await expect(page.getByRole('img',{name:'Scan to open the menu'})).toBeVisible();
   const url=await page.getByRole('dialog').getByRole('link').getAttribute('href');
   expect(url).toContain('/menu/integration-demo-');
