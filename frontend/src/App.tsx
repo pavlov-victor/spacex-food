@@ -666,9 +666,6 @@ export default function App() {
               >
                 <CardHeader>
                   <CardTitle>Let's get started</CardTitle>
-                  <CardDescription>
-                    Turn your paper menu into a digital one in three steps.
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ol className="grid gap-5 sm:grid-cols-3 sm:gap-6">
@@ -694,7 +691,9 @@ export default function App() {
                         <div className="mb-2 text-xs font-medium text-muted-foreground">
                           {step}
                         </div>
-                        <div className="text-sm font-medium">{title}</div>
+                        <div className="text-sm font-medium text-primary">
+                          {title}
+                        </div>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {caption}
                         </p>
