@@ -233,6 +233,17 @@ export default function App() {
     createProduct,
   } = useProducts(menuFilter);
   const [notice, setNotice] = useState("");
+  const [dismissedJobCount, setDismissedJobCount] = useState<number | null>(
+    null,
+  );
+  const recognitionJobCount = flow.jobs.length;
+  const runningJobCount = flow.jobs.filter(
+    (job) => job.status === "queued" || job.status === "running",
+  ).length;
+  const showJobsToast =
+    session.isAuthenticated &&
+    recognitionJobCount > 0 &&
+    dismissedJobCount !== recognitionJobCount;
   const [productFormError, setProductFormError] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [search, setSearch] = useState("");
@@ -811,19 +822,6 @@ export default function App() {
                     </p>
                   )}
                 </div>
-                {session.isAuthenticated && flow.jobs.length > 0 && (
-                  <div className="mt-6 border-t pt-4">
-                    <p className="mb-2 text-sm font-medium">Recognition jobs</p>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      {flow.jobs.slice(0, 5).map((job) => (
-                        <li key={job._id}>
-                          {job.kind} · {job.status}
-                          {job.error ? ` — ${job.error}` : ""}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </CardContent>
             </Card>
           )}
@@ -907,6 +905,35 @@ export default function App() {
           )}
         </main>
       </div>
+      {showJobsToast && (
+        <div
+          role="status"
+          className="fixed right-5 bottom-5 z-50 w-72 rounded-xl border bg-white p-4 shadow-lg"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium">Recognition jobs</p>
+              <p className="mt-1 text-3xl font-semibold tracking-tight">
+                {recognitionJobCount}
+              </p>
+              {runningJobCount > 0 && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {runningJobCount} running
+                </p>
+              )}
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Close recognition jobs"
+              onClick={() => setDismissedJobCount(recognitionJobCount)}
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
