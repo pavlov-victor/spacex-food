@@ -1,3 +1,8 @@
+import { ProductEditor } from "@/components/crm/product-editor";
+import { MenuPublisher } from "@/components/crm/menu-publisher";
+import { WorkspaceSettings } from "@/components/crm/workspace-settings";
+import { useWorkspace } from "@/hooks/use-workspace";
+import type { Product } from "@/domain/product";
 import { useState } from "react";
 import { useProducts } from "@/hooks/use-products";
 import { useSession } from "@/hooks/use-session";
@@ -212,6 +217,11 @@ function Charts() {
 export default function App() {
   const session = useSession();
   const flow = useMenuWorkflows();
+  const workspace = useWorkspace();
+  const [selectedProduct, setSelectedProduct] = useState<Product['id'] | null>(null);
+  const [publishingMenu, setPublishingMenu] = useState<{ id: NonNullable<Product['menuId']>; name: string } | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [menuFilter, setMenuFilter] = useState<NonNullable<Product['menuId']> | undefined>();
   const [page, setPage] = useState("Dashboard");
   const [mobileNav, setMobileNav] = useState(false);
   const [open, setOpen] = useState(false);
@@ -221,18 +231,16 @@ export default function App() {
     isSaving,
     error: productsError,
     createProduct,
-  } = useProducts();
+  } = useProducts(menuFilter);
   const [notice, setNotice] = useState("");
   const [productFormError, setProductFormError] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [isSigningIn, setIsSigningIn] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const visibleProducts = filterProducts(products, search).filter(
     (p) => !categoryFilter || p.category === categoryFilter,
   );
-  const [extraCategories, setExtraCategories] = useState<string[]>([]);
+
   const [categoryFormError, setCategoryFormError] = useState("");
   const [menuFormError, setMenuFormError] = useState("");
   const categories = Array.from(
@@ -240,7 +248,7 @@ export default function App() {
       ...(session.isAuthenticated
         ? flow.categories.map((category) => category.name)
         : ["Main dishes", "Prilog", "Starters"]),
-      ...extraCategories,
+
     ]),
   );
   const menus = session.isAuthenticated
@@ -263,7 +271,7 @@ export default function App() {
     setOpen(false);
     setNotice(`${result.product.name} added to your products.`);
   }
-  function addCategory(event: FormEvent<HTMLFormElement>) {
+  async function addCategory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setCategoryFormError("");
     const form = new FormData(event.currentTarget);
@@ -276,27 +284,10 @@ export default function App() {
       setCategoryFormError("This category already exists");
       return;
     }
-    setExtraCategories([...extraCategories, categoryName]);
+    try { await flow.createCategory(categoryName); }
+    catch (error) { setCategoryFormError(error instanceof Error ? error.message : 'Could not save category.'); return; }
     setOpen(false);
     setNotice(`${categoryName} added to your categories.`);
-  }
-  async function handleLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setLoginError("");
-    const form = new FormData(event.currentTarget);
-    setIsSigningIn(true);
-    try {
-      await session.login(
-        String(form.get("username") || ""),
-        String(form.get("password") || ""),
-      );
-    } catch (error) {
-      setLoginError(
-        error instanceof Error ? error.message : "Could not sign in.",
-      );
-    } finally {
-      setIsSigningIn(false);
-    }
   }
   async function addMenu(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -338,6 +329,9 @@ export default function App() {
   }
   return (
     <div className="min-h-svh bg-background text-foreground">
+      {selectedProduct && <ProductEditor key={selectedProduct} productId={selectedProduct} onClose={() => setSelectedProduct(null)} />}
+      {publishingMenu && <MenuPublisher key={publishingMenu.id} menu={publishingMenu} onReview={id => { setPublishingMenu(null); setSelectedProduct(id); }} onClose={() => setPublishingMenu(null)} />}
+      {settingsOpen && <WorkspaceSettings onClose={() => { setSettingsOpen(false); setMenuFilter(undefined); }} />}
       <header className="flex h-[72px] items-center justify-between border-b px-5 md:px-8">
         <div className="flex items-center gap-3">
           <Button
@@ -357,42 +351,8 @@ export default function App() {
             SpaceX food
           </span>
         </div>
-        {session.isAuthenticated ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void session.logout()}
-          >
-            <LogOut className="size-4" />
-            Log out
-          </Button>
-        ) : (
-          <form
-            onSubmit={handleLogin}
-            className="flex flex-wrap items-center justify-end gap-2"
-          >
-            <Input
-              name="username"
-              aria-label="Username"
-              defaultValue="admin"
-              autoComplete="username"
-              className="h-8 w-28"
-              required
-            />
-            <Input
-              name="password"
-              type="password"
-              aria-label="Password"
-              placeholder="Password"
-              autoComplete="current-password"
-              className="h-8 w-28"
-              required
-            />
-            <Button type="submit" size="sm" disabled={isSigningIn}>
-              {isSigningIn ? "Signing in…" : "Sign in"}
-            </Button>
-          </form>
-        )}
+        <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>{session.isAuthenticated ? workspace.organizations.find(o => o._id === workspace.organizationId)?.name ?? 'Restaurant settings' : 'Create restaurant'}</Button>
+        <Button variant="outline" size="sm" onClick={() => void session.logout()}><LogOut className="size-4" />Log out</Button>
       </header>
       <div className="flex min-h-[calc(100svh-72px)]">
         <aside
@@ -648,11 +608,6 @@ export default function App() {
               </DialogContent>
             </Dialog>
           </div>
-          {loginError && (
-            <p role="alert" className="mb-4 text-sm text-destructive">
-              {loginError}
-            </p>
-          )}
           {productsError && (
             <p role="alert" className="mb-4 text-sm text-destructive">
               {productsError}
@@ -763,6 +718,7 @@ export default function App() {
                 </div>
               </CardHeader>
               <CardContent>
+                {menuFilter && <Button variant="outline" className="mb-3" onClick={() => setMenuFilter(undefined)}>Show all menus</Button>}
                 {isLoading ? (
                   <p
                     role="status"
@@ -788,7 +744,7 @@ export default function App() {
                         {visibleProducts.map((p) => (
                           <tr key={p.id} className="border-b last:border-0">
                             <td className="p-3 font-medium">
-                              {p.name}
+                              <button type="button" className="text-left underline underline-offset-4" onClick={() => setSelectedProduct(p.id)}>{p.name}</button>
                               <p className="max-w-md text-xs font-normal text-muted-foreground">
                                 {p.description}
                               </p>
@@ -835,7 +791,7 @@ export default function App() {
                           key={"_id" in menu ? String(menu._id) : menu.name}
                           className="border-b last:border-0"
                         >
-                          <td className="p-3 font-medium">{menu.name}</td>
+                          <td className="p-3 font-medium">{menu.name}{"_id" in menu && <div className="mt-2 flex gap-2"><Button size="sm" variant="outline" onClick={() => { setMenuFilter(menu._id); setCategoryFilter(''); setSearch(''); setPage('Products'); }}>View dishes</Button><Button size="sm" variant="outline" disabled={menu.status !== 'draft'} onClick={() => setPublishingMenu({id:menu._id,name:menu.name})}>Publish / QR</Button></div>}</td>
                           <td className="p-3 capitalize text-muted-foreground">
                             {"status" in menu ? menu.status : "draft"}
                           </td>

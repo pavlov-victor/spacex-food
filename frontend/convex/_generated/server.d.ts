@@ -30,9 +30,12 @@ import type { DataModel } from "./dataModel.js";
 type Env = {
   readonly CONVEX_CLOUD_URL: string;
   readonly CONVEX_SITE_URL: string;
+  readonly DAYTONA_API_KEY: string | undefined;
+  readonly DAYTONA_SNAPSHOT: string | undefined;
   readonly DIFY_API_URL: string | undefined;
   readonly DIFY_MENU_API: string | undefined;
   readonly DIFY_PERSON_API: string | undefined;
+  readonly PUBLIC_APP_URL: string | undefined;
 };
 
 /**

@@ -1,0 +1,33 @@
+import { test, expect } from '@playwright/test';
+import { signInDemo } from './auth-helper';
+
+test('restaurant controls, product editor and publication QR are connected', async ({page}) => {
+  await signInDemo(page);
+  await page.goto('/');
+  await expect(page.getByRole('button',{name:'Log out',exact:true})).toBeVisible();
+  const header = page.locator('header').first();
+  await header.getByRole('button').filter({hasNotText:'Log out'}).last().click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  const choice=page.getByLabel('Active restaurant');
+  const option=await choice.locator('option').filter({hasText:'Integration demo'}).last().getAttribute('value');
+  expect(option).toBeTruthy();
+  await choice.selectOption(option!);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button',{name:'Menus',exact:true}).click();
+  await page.getByRole('button',{name:'View dishes',exact:true}).first().click();
+  await expect(page.getByRole('button',{name:'Show all menus',exact:true})).toBeVisible();
+  const dish=page.locator('tbody button').filter({hasText:/Schnitzel/i}).first();
+  await dish.click();
+  await expect(page.getByRole('button',{name:'Regenerate card',exact:true})).toBeVisible();
+  await expect(page.getByLabel('English description')).not.toBeEmpty();
+  await expect(page.getByRole('img',{name:'Generated dish draft'})).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.getByRole('button',{name:'Menus',exact:true}).click();
+  await page.getByRole('button',{name:'Publish / QR',exact:true}).first().click();
+  await expect(page.getByRole('img',{name:'Scan to open the menu'})).toBeVisible();
+  const url=await page.getByRole('dialog').getByRole('link').getAttribute('href');
+  expect(url).toContain('/menu/integration-demo-');
+  await page.goto(url!);
+  await expect(page.locator('.sf-card').first()).toBeVisible();
+  await page.screenshot({path:'test-results/demo-public-menu.png',fullPage:true});
+});

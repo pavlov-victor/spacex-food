@@ -108,3 +108,35 @@ RUN_BACKEND_E2E=1 PLAYWRIGHT_CHANNEL=chrome npx playwright test
 17 серверных тестов: создание аккаунта/организации, login, неверный пароль, доступ между организациями, чужие файлы, идемпотентность, частичные результаты, таймауты/попытки, SSE, постоянное хранение сгенерированного изображения (mock провайдера). 4 браузерных теста, включая чтение настоящей dev-базы после входа.
 
 Живая проверка: menu run сохранён в job, 78 блюд/5 категорий. Product run `5c3530cb-f84c-4540-9a46-eb3b0184530f` в Dify вернул `partial-succeeded`; текст восстановлен и сохранён, `processing.search=failed`, `processing.image=failed`. Для полноценной картинки нужно исправить/проверить HTTP-узлы и переменные Exa/x.ai в опубликованном Dify product. Workflow API key даёт запуск, а не доступ к его редактору. Новую платную генерацию после этой диагностики не запускали.
+
+## Принятие карточки и публикация (2026-09-12)
+
+После генерации `useProductCard(productId)` возвращает `card` с `_id`, `draftJson` и `imageUrl`. В `draftJson.product.translations.en` — английские имя и описание. Редактор может дать пользователю изменить их перед применением.
+
+```tsx
+const { applyCard } = useMenuWorkflows();
+await applyCard({
+  productId,
+  cardId: product.card._id,
+  reviewed: true, // пользователь нажал Apply после просмотра
+  // name: editedEnglishName, description: editedEnglishDescription,
+});
+```
+
+`applyCard` берёт английский текст из текущей карточки либо принимает отредактированные `name`/`description`. Сохраняет исходное имя в `originalName`, ставит `acceptedCardId`. Цена, валюта и подтверждённый состав/аллергены не заменяются AI-данными. Если идёт новая генерация или карточка устарела, операция отклоняется. Повторная генерация требует нового Apply.
+
+```tsx
+import { useMenuPublishing } from '@/hooks/use-menu-publishing';
+const { publications, isLoading, publish, unpublish } = useMenuPublishing();
+const { url, slug } = await publish({ menuId, name: 'My kafana', slug: 'my-kafana', reviewed: true });
+// url: https://<текущий-домен>/menu/my-kafana — показываем ссылкой и кодируем в QR.
+await unpublish(slug);
+```
+
+`publications` содержит `{ ...publication, url }` для активной организации, включая неопубликованные меню. Публикация не допускает активную генерацию или непринятую последнюю карточку. Она создаёт snapshot: последующие правки появляются у гостей после повторного Publish. Не требуется генерировать изображения для всех позиций перед публикацией.
+
+Пути и JSX остаются задачей UI-участника; hooks готовы к подключению. Ошибки методов нужно ловить в форме, кнопку блокировать на время запроса. Веб-адрес определяется через `window.location.origin`, поэтому подходит для Render без зашитого localhost.
+
+## Daytona PDF tasks
+
+`useMenuPdf(menuId)` возвращает статус автоматической сборки, `pdfUrl`, `previewUrl`, `isStale`, `error` и `regenerate()`. `useMenuWorkflows.uploadMenuFile(file)` принимает JPG/PNG/PDF; лимит — 5 страниц/изображений на импорт. `useProducts(menuId).createProduct` связывает новое блюдо с выбранным меню и инициирует пересборку PDF. Контракт событий, настройки и подключение file input описаны в [daytona-pdf.md](daytona-pdf.md).

@@ -7,6 +7,6 @@ export const publicItem = {
   allergensComplete: v.boolean(), imageUrl: v.union(v.string(), v.null()),
 };
 export const storefrontTables = {
-  publicMenus: defineTable({ organizationId: v.id("organizations"), menuId: v.id("menus"), slug: v.string(), name: v.string(), published: v.boolean(), demo: v.boolean() }).index("by_slug", ["slug"]),
+  publicMenus: defineTable({ organizationId: v.id("organizations"), menuId: v.id("menus"), slug: v.string(), name: v.string(), published: v.boolean(), demo: v.boolean() }).index("by_slug", ["slug"]).index("by_organizationId", ["organizationId"]),
   publicMenuItems: defineTable({ publicMenuId: v.id("publicMenus"), ...publicItem }).index("by_menu", ["publicMenuId"]),
 };

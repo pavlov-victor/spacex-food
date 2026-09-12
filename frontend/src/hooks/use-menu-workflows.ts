@@ -14,7 +14,11 @@ export function useMenuWorkflows() {
     startCard = useMutation(api.jobs.generateCard),
     retryJob = useMutation(api.jobs.retry),
     updateOrganization = useMutation(api.organizations.update),
-    updateProduct = useMutation(api.catalog.updateProduct);
+    updateProduct = useMutation(api.catalog.updateProduct),
+    applyCard = useMutation(api.catalog.applyCard),
+    createCategory = useMutation(api.catalog.createCategory),
+    deleteProduct = useMutation(api.catalog.deleteProduct),
+    renameMenu = useMutation(api.catalog.renameMenu);
   const menus = useQuery(
     api.catalog.menus,
     organizationId ? { organizationId } : "skip",
@@ -34,11 +38,11 @@ export function useMenuWorkflows() {
   async function uploadImage(file: File, kind: "menu" | "table" | "dish") {
     const selectedOrganization = org();
     if (
-      !["image/jpeg", "image/png"].includes(file.type) ||
+      !(kind === "menu" ? ["image/jpeg", "image/png", "application/pdf"] : ["image/jpeg", "image/png"]).includes(file.type) ||
       file.size > 10 * 1024 * 1024 ||
       file.size === 0
     )
-      throw new Error("Choose a JPG or PNG image up to 10 MB.");
+      throw new Error("Choose JPG/PNG or a menu PDF up to 10 MB (maximum 5 total pages).");
     return upload({
       organizationId: selectedOrganization,
       kind,
@@ -55,6 +59,12 @@ export function useMenuWorkflows() {
       !!organizationId &&
       (menus === undefined || categories === undefined || jobs === undefined),
     uploadImage,
+    uploadMenuFile: (file: File) => uploadImage(file, "menu"),
+    deleteProduct: (productId: Id<"products">) => deleteProduct({ organizationId: org(), productId }),
+    renameMenu: (menuId: Id<"menus">, name: string) => renameMenu({menuId, name}),
+    createCategory: (name: string) => createCategory({organizationId: org(), name}),
+    applyCard: (input: Omit<FunctionArgs<typeof api.catalog.applyCard>, "organizationId">) =>
+      applyCard({ organizationId: org(), ...input }),
     importMenu: (
       name: string,
       fileIds: Id<"files">[],

@@ -1,7 +1,8 @@
 {
   "product_json": "{\"id\":\"prod_4\",\"category_id\":\"cat_2\",\"category_name\":\"Glavna jela sa prilogom\",\"name\":\"Karađorđeva\",\"description\":null,\"price\":480,\"currency\":null,\"portion\":null,\"source_images\":[1],\"needs_review\":true}",
-  "target_languages": "sr,en,ru",
   "restaurant_context": "Serbian kafana. Recipe and serving details have not been confirmed yet.",
   "image_prompt": "Natural daylight, simple ceramic plate, realistic restaurant presentation.",
-  "table_image_url": ""
+  "table_image_url": "",
+  "dish_image_url": "",
+  "card_reference_url": ""
 }

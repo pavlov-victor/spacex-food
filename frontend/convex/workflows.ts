@@ -22,8 +22,9 @@ export const run = internalAction({
         );
       const inputs: Record<string, unknown> = {};
       if (job.kind === "menu") {
+        const fileIds = await ctx.runAction(internal.menuPdf.prepareImport, { jobId: job._id, attempt: job.attempt });
         inputs.menu_images = await Promise.all(
-          (job.input.fileIds ?? []).map(async (fileId) => ({
+          fileIds.map(async (fileId) => ({
             type: "image",
             transfer_method: "remote_url",
             url: await ctx.runQuery(internal.jobs.fileUrl, {
@@ -34,7 +35,7 @@ export const run = internalAction({
         );
       } else {
         inputs.product_json = job.input.productJson;
-        inputs.target_languages = job.input.targetLanguages ?? "sr,en,ru";
+
         inputs.restaurant_context = job.input.restaurantContext ?? "";
         inputs.image_prompt = job.input.imagePrompt ?? "";
         inputs.table_image_url = job.input.tableFileId

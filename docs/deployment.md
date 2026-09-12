@@ -69,3 +69,7 @@ Convex выбран для Backend / state по https://hackathon.cursorserbia.c
 4. Переменные `DIFY_MENU_API`, `DIFY_PERSON_API` хранятся в backend environment Convex. `XAI_API_KEY`/`EXA_API_KEY` для HTTP-узлов workflow — в настройках опубликованного Dify приложения.
 
 Источники: https://docs.convex.dev/quickstart/react, https://docs.convex.dev/production/hosting/custom, https://docs.convex.dev/cli/overview, https://labs.convex.dev/auth/setup/manual
+
+### Проверка 2026-09-12, 15:00 Belgrade
+
+Dev Convex обновлён: сохранение fal.media, applyCard и hooks публикации. Сквозной API-тест обработал 78 блюд, вызвал опубликованный Dify 0.0.8 с fal.ai, сохранил изображение и опубликовал английский текст. Тестовое меню: `/menu/integration-demo-1789218025883`. Оно доступно на фронтенде с указанным выше dev VITE_CONVEX_URL. Это проверка dev backend; наличие Render-сервиса и подключённых CRM-кнопок ею не подтверждается.

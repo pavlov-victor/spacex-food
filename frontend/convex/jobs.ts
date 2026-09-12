@@ -1,3 +1,4 @@
+import { invalidateMenuPdf } from "./lib/menuPdf";
 import {
   query,
   mutation,
@@ -60,7 +61,7 @@ export const importMenu = mutation({
       return existing._id;
     }
     if (args.fileIds.length < 1 || args.fileIds.length > 5)
-      throw new Error("Choose 1–5 menu photos.");
+      throw new Error("Choose 1–5 menu images/PDFs (at most 5 total pages).");
     for (const id of args.fileIds)
       await requireFile(ctx, args.organizationId, id, "menu");
     const menuId = await ctx.db.insert("menus", {
@@ -147,7 +148,7 @@ export const generateCard = mutation({
     const context = [organization.context, args.restaurantContext ?? ""]
       .filter(Boolean)
       .join("\n");
-    const languages = args.targetLanguages ?? "sr,en,ru";
+    const languages = args.targetLanguages ?? "en";
     if (
       productJson.length > 20000 ||
       context.length > 5000 ||
@@ -315,6 +316,7 @@ export const finishMenu = internalMutation({
       productCount: args.products.length,
       warnings: args.warnings,
     });
+    await invalidateMenuPdf(ctx, job.menuId);
     await ctx.db.patch(job._id, {
       status: "succeeded",
       workflowRunId: args.workflowRunId,

@@ -4,9 +4,8 @@ test("anonymous CRM shows sign-in requirement without exposing organization prod
   page,
 }) => {
   await page.goto("/");
-  await expect(page.getByRole("status")).toHaveCount(0);
-  await expect(page.getByRole("alert")).toContainText("Sign in");
-  await page.getByRole("button", { name: "Products", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Main navigation" })).toHaveCount(0);
   await expect(page.getByText("Karađorđeva", { exact: false })).toHaveCount(0);
 });
 test("authenticated browser reads organization products from Convex", async ({
@@ -28,6 +27,7 @@ test("authenticated browser reads organization products from Convex", async ({
   expect(errors).toEqual([]);
 });
 test("mobile navigation stays within viewport", async ({ page }) => {
+  await signInDemo(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   expect(

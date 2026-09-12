@@ -19,15 +19,17 @@ export const upload = action({
     const name = boundedText(args.name, "Filename", 200);
     const bytes = new Uint8Array(args.bytes);
     if (!bytes.length || bytes.length > 10 * 1024 * 1024)
-      throw new Error("Image must be between 1 byte and 10 MB.");
+      throw new Error("File must be between 1 byte and 10 MB.");
+    const pdf = new TextDecoder().decode(bytes.slice(0, 5)) === "%PDF-";
     const jpeg = bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
     const png =
       bytes[0] === 137 && bytes[1] === 80 && bytes[2] === 78 && bytes[3] === 71;
     if (!(
       (args.contentType === "image/jpeg" && jpeg) ||
-      (args.contentType === "image/png" && png)
+      (args.contentType === "image/png" && png) ||
+      (args.kind === "menu" && args.contentType === "application/pdf" && pdf)
     ))
-      throw new Error("Upload a JPG or PNG image.");
+      throw new Error("Upload JPG/PNG, or a PDF for menu import.");
     const storageId = await ctx.storage.store(
       new Blob([args.bytes], { type: args.contentType }),
     );

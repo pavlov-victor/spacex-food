@@ -79,9 +79,9 @@ export function normalizeMenu(outputs: Record<string, unknown>) {
   return result;
 }
 export function normalizeCard(outputs: Record<string, unknown>) {
-  const body = outputs.product
-    ? outputs
-    : object(JSON.parse(text(outputs.product_json, "product JSON", 500000)));
+  const body = typeof outputs.product_json === "string"
+    ? object(JSON.parse(text(outputs.product_json, "product JSON", 500000)))
+    : outputs;
   const product = object(body.product);
   text(product.name, "product name", 120);
   product.needs_review = true;
@@ -209,7 +209,7 @@ export async function downloadGeneratedImage(url: string): Promise<Blob> {
     parsed.username ||
     parsed.password ||
     parsed.port ||
-    (parsed.hostname !== "imgen.x.ai" && !parsed.hostname.endsWith(".x.ai"))
+    (!["x.ai", "fal.media"].some(domain => parsed.hostname === domain || parsed.hostname.endsWith(`.${domain}`)))
   )
     throw new Error(
       "Generated image URL is not from the expected image provider.",

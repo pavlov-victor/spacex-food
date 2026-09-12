@@ -44,6 +44,7 @@ export function useProducts(menuId?: Id<"menus">) {
     try {
       const id = await create({
         organizationId,
+        menuId,
         ...input,
         currency: input.currency ?? "RSD",
       });

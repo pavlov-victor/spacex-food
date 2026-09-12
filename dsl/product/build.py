@@ -21,7 +21,7 @@ Dumper.add_representer(str, string)
 
 def build():
     doc = yaml.safe_load((ROOT / 'menu' / '0.0.2.yml').read_text())
-    doc['app'].update(name='spacex-product', description='Product 0.0.2: normalize LLM boolean strings; descriptions, translations, classification, sourced facts and x.ai illustration.')
+    doc['app'].update(name='spacex-product', description='Product 0.0.6: Dify editor compatibility: JSON-string HTTP fallback values.')
     doc['workflow']['environment_variables'] = [
         {'id': str(uuid.uuid5(uuid.NAMESPACE_DNS, 'spacex-product-' + key)), 'name': key, 'value_type': typ, 'value': value, 'description': description}
         for key, typ, value, description in [
@@ -44,15 +44,16 @@ def build():
         node(key, {'title': title, 'type': 'code', 'code_language': 'python3', 'code': (HERE / 'src' / source).read_text(), 'variables': [{'variable': var, 'value_selector': selector} for var, selector in inputs.items()], 'outputs': {var: {'type': typ, 'children': None} for var, typ in outputs.items()}})
 
     def http(key, title, url, body, auth, header, read_timeout):
-        node(key, {'title': title, 'type': 'http-request', 'method': 'post', 'url': url, 'authorization': {'type': 'api-key', 'config': {'type': auth, 'api_key': '{{#env.' + ('XAI_API_KEY' if key == 'image' else 'EXA_API_KEY') + '#}}', 'header': header}}, 'headers': 'Content-Type:application/json', 'params': '', 'body': {'type': 'json', 'data': [{'key': '', 'type': 'text', 'value': body}]}, 'timeout': {'connect': 10, 'read': read_timeout, 'write': 20}, 'ssl_verify': True, 'error_strategy': 'default-value', 'default_value': [{'key': 'body', 'type': 'string', 'value': '{}'}, {'key': 'status_code', 'type': 'number', 'value': 0}, {'key': 'headers', 'type': 'object', 'value': {}}], 'retry_config': {'retry_enabled': False, 'max_retries': 0, 'retry_interval': 1000}})
+        node(key, {'title': title, 'type': 'http-request', 'method': 'post', 'url': url, 'authorization': {'type': 'api-key', 'config': {'type': auth, 'api_key': '{{#env.' + ('XAI_API_KEY' if key == 'image' else 'EXA_API_KEY') + '#}}', 'header': header}}, 'headers': 'Content-Type:application/json', 'params': '', 'body': {'type': 'json', 'data': [{'key': '', 'type': 'text', 'value': body}]}, 'timeout': {'connect': 10, 'read': read_timeout, 'write': 20}, 'ssl_verify': True, 'error_strategy': 'default-value', 'default_value': [{'key': 'body', 'type': 'string', 'value': '{}'}, {'key': 'status_code', 'type': 'number', 'value': 0}, {'key': 'headers', 'type': 'object', 'value': '{}'}], 'variables': [], 'retry_config': {'retry_enabled': False, 'max_retries': 0, 'retry_interval': 1000}})
 
     variables = []
     for name, label, typ, required, default, limit in [
         ('product_json', 'One product JSON from menu', 'paragraph', True, '', 20000),
-        ('target_languages', 'Languages (comma-separated)', 'text-input', False, 'sr,en,ru', 100),
         ('restaurant_context', 'Restaurant notes / recipe details', 'paragraph', False, '', 5000),
         ('image_prompt', 'Image style / instructions', 'paragraph', False, '', 2000),
         ('table_image_url', 'Optional table photo HTTPS URL', 'text-input', False, '', 4000),
+        ('dish_image_url', 'Optional actual prepared dish photo HTTPS URL', 'text-input', False, '', 4000),
+        ('card_reference_url', 'Optional card graphic style reference HTTPS URL', 'text-input', False, '', 4000),
     ]:
         variables.append({'variable': name, 'label': label, 'type': typ, 'required': required, 'default': default, 'max_length': limit, 'options': []})
     node('start', {'title': 'Product input', 'type': 'start', 'variables': variables})
@@ -67,7 +68,7 @@ def build():
     node('end', {'title': 'Product output', 'type': 'end', 'outputs': [{'variable': key, 'value_selector': [ids['final'], key], 'value_type': val['type']} for key, val in final_outputs.items()]})
     edges = [{'id': a['id'] + '-source-' + b['id'] + '-target', 'source': a['id'], 'sourceHandle': 'source', 'target': b['id'], 'targetHandle': 'target', 'type': 'custom', 'zIndex': 0, 'data': {'sourceType': a['data']['type'], 'targetType': b['data']['type'], 'isInIteration': False, 'isInLoop': False}} for a, b in zip(nodes, nodes[1:])]
     doc['workflow']['graph'] = {'nodes': nodes, 'edges': edges, 'viewport': {'x': 0, 'y': 0, 'zoom': 0.6}}
-    with (HERE / '0.0.2.yml').open('x') as file:
+    with (HERE / '0.0.6.yml').open('x') as file:
         yaml.dump(doc, file, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=110)
 
 

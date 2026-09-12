@@ -376,7 +376,7 @@ describe("workflow action integration", () => {
     expect(remembered).toEqual(["run-x"]);
     expect(result.outputs.status).toBe("partial");
   });
-  test("successful image is copied to Convex storage and linked to the food card", async () => {
+  test.each(["https://imgen.x.ai/mock.png", "https://v3b.fal.media/files/mock.png"])("provider image %s is copied to Convex storage", async (imageUrl) => {
     vi.useFakeTimers();
     vi.stubEnv("DIFY_PERSON_API", "mock-product-key");
     const s = await setup();
@@ -401,7 +401,7 @@ describe("workflow action integration", () => {
                   product: {
                     name: "Dish",
                     image: {
-                      url: "https://imgen.x.ai/mock.png",
+                      url: imageUrl,
                       status: "ok",
                       url_is_temporary: true,
                     },
@@ -527,4 +527,12 @@ test("password signup creates an organization and subsequent sign-in reuses it",
       params: { username: params.username, password: "wrong", flow: "signIn" },
     }),
   ).rejects.toThrow();
+});
+
+test("fal host checks reject lookalikes and invalid response types", async () => {
+  for (const url of ["https://fal.media.evil.com/x", "https://evilfal.media/x", "https://user:pass@v3.fal.media/x", "http://v3.fal.media/x"]) {
+    await expect(downloadGeneratedImage(url)).rejects.toThrow("expected image provider");
+  }
+  vi.stubGlobal("fetch", vi.fn(async () => new Response("html", { headers: { "content-type": "text/html" } })));
+  await expect(downloadGeneratedImage("https://v3.fal.media/x")).rejects.toThrow("unsupported format");
 });
