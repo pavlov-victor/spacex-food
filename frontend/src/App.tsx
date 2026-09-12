@@ -34,6 +34,8 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -208,6 +210,69 @@ function Charts() {
                   maxBarSize={32}
                 />
               </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+      <Card className={chartCardClass} style={{ backgroundColor: "#fff" }}>
+        <CardHeader>
+          <CardTitle className="text-orange-950">Adoption</CardTitle>
+          <CardDescription className="text-orange-800/70">
+            Guests opening the digital menu from QR
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-7 flex items-end gap-3">
+            <span className="text-3xl font-semibold tracking-tight text-orange-800">
+              74%
+            </span>
+            <span className="mb-1 flex items-center gap-1 text-xs text-orange-700">
+              <TrendingUp className="size-3.5" /> +13 pts from last month
+            </span>
+          </div>
+          <div
+            className="h-60 w-full"
+            role="img"
+            aria-label="Demo digital menu adoption increases from 18 percent in April to 74 percent in September"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={chartData}
+                margin={{ top: 5, right: 12, left: -20, bottom: 0 }}
+              >
+                <CartesianGrid
+                  vertical={false}
+                  stroke={chartGrid}
+                  strokeDasharray="3 3"
+                />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: chartTick }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: chartTick }}
+                  tickFormatter={(v) => `${v}%`}
+                  domain={[0, 80]}
+                />
+                <Tooltip
+                  formatter={(v) => [`${v}%`, "Adoption"]}
+                  contentStyle={chartTooltip}
+                />
+                <Line
+                  isAnimationActive={false}
+                  type="monotone"
+                  dataKey="adoption"
+                  stroke={chartInk}
+                  strokeWidth={2}
+                  dot={{ r: 3.5, fill: chartInk, strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: chartInk, strokeWidth: 0 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
