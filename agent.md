@@ -113,8 +113,9 @@
 
 - Создано приложение `frontend/`: React + TypeScript + Vite, Tailwind CSS, shadcn/ui (Radix Nova, neutral), Recharts.
 - Референс Dashboard сохранён в `docs/references/crm-dashboard.png`.
-- Реализованы адаптивная навигация, Dashboard со счётчиками 4/57/168 и двумя демонстрационными графиками, диалог Add product, список и поиск локально добавленных продуктов.
+- Реализованы адаптивная навигация, Dashboard со счётчиками 4/57/168 и двумя демонстрационными графиками, Drawer Add product, список и поиск локально добавленных продуктов.
 - Продукты хранятся в localStorage; счётчик продуктов прибавляет их к демонстрационному значению 168. Метрики не подключены к реальным данным.
+- Форма Add product перенесена из модального окна в `src/components/ui/drawer.tsx` — боковая панель справа на базе того же Radix Dialog и токенов shadcn (`radix-nova`), без новых зависимостей. Prop `side` поддерживает right/left/bottom/top; на узких экранах панель занимает всю ширину.
 - Menus, Categories и Org settings — явно обозначенные заглушки до следующих референсов. Log out выходит из демо; настоящая авторизация и Dify/backend пока не подключены.
 - Запуск: `cd frontend && npm install && npm run dev`. Подробности в `frontend/README.md`.
 
@@ -133,3 +134,8 @@
 - Через `DIFY_PERSON_API` выполнен product run `5c3530cb-f84c-4540-9a46-eb3b0184530f`: Dify вернул `partial-succeeded`, текст сохранён в cards, поиск и изображение failed на стороне workflow. Исправлена обработка partial-succeeded; результат восстановлен без повторного вызова генерации. Сохранение успешного изображения в постоянный Storage проверено тестом с mock провайдера; живой Dify Image пока неуспешен.
 - Frontend подключён через BackendProvider, useSession/useWorkspace/useProducts/useMenuWorkflows/useProductCard. Дизайнеру остаются страницы и формы; API и фактические проверки — `docs/backend-api.md`.
 - 17 серверных тестов, TypeScript, production build и 4 браузерных теста прошли; один браузерный тест читает реальную dev-базу после входа. Production Convex и публикация приложения на Render не выполнялись.
+
+## CRM UI follow-up — 2026-09-12
+
+- Палитра CRM сделана теплее, primary — тёплый maroon; графики используют тот же акцент.
+- Компонент `drawer.tsx` добавлен для боковых панелей; текущая форма Add product на merged `main` снова на Dialog и читает продукты через Convex `useProducts`.

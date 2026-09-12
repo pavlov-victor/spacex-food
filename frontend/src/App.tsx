@@ -206,6 +206,14 @@ export default function App() {
   const [loggedOut, setLoggedOut] = useState(false);
   const [search, setSearch] = useState("");
   const visibleProducts = filterProducts(products, search);
+  const [categories, setCategories] = useState([
+    "Main dishes",
+    "Prilog",
+    "Starters",
+  ]);
+  const [categoryFormError, setCategoryFormError] = useState("");
+  const [menus, setMenus] = useState(["Main", "Secondary", "Third"]);
+  const [menuFormError, setMenuFormError] = useState("");
   async function addProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setProductFormError("");
@@ -222,6 +230,40 @@ export default function App() {
     }
     setOpen(false);
     setNotice(`${result.product.name} added to your products.`);
+  }
+  function addCategory(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setCategoryFormError("");
+    const form = new FormData(event.currentTarget);
+    const categoryName = String(form.get("name") || "").trim();
+    if (!categoryName) {
+      setCategoryFormError("Category name is required");
+      return;
+    }
+    if (categories.includes(categoryName)) {
+      setCategoryFormError("This category already exists");
+      return;
+    }
+    setCategories([...categories, categoryName]);
+    setOpen(false);
+    setNotice(`${categoryName} added to your categories.`);
+  }
+  function addMenu(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMenuFormError("");
+    const form = new FormData(event.currentTarget);
+    const menuName = String(form.get("name") || "").trim();
+    if (!menuName) {
+      setMenuFormError("Menu name is required");
+      return;
+    }
+    if (menus.includes(menuName)) {
+      setMenuFormError("This menu already exists");
+      return;
+    }
+    setMenus([...menus, menuName]);
+    setOpen(false);
+    setNotice(`${menuName} added to your menus.`);
   }
   if (loggedOut)
     return (
@@ -326,7 +368,11 @@ export default function App() {
                     ? "Manage the products you add to your workspace."
                     : page === "Analytics"
                       ? "See how your digital menu is performing."
-                      : "Your restaurant workspace."}
+                      : page === "Categories"
+                        ? "Organize your menu with custom categories."
+                        : page === "Menus"
+                          ? "Create and manage the menus guests will see."
+                          : "Your restaurant workspace."}
               </p>
             </div>
             <Dialog
@@ -334,15 +380,95 @@ export default function App() {
               onOpenChange={(value) => {
                 setOpen(value);
                 setProductFormError("");
+                setCategoryFormError("");
+                setMenuFormError("");
               }}
             >
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="size-4" />
-                  Add product
+                  {page === "Categories"
+                    ? "Add categories"
+                    : page === "Menus"
+                      ? "Add menu"
+                      : "Add product"}
                 </Button>
               </DialogTrigger>
               <DialogContent>
+                {page === "Menus" ? (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle>Add menu</DialogTitle>
+                      <DialogDescription>
+                        Add a new menu for your restaurant workspace.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={addMenu} className="space-y-4">
+                      {menuFormError && (
+                        <p role="alert" className="text-sm text-destructive">
+                          {menuFormError}
+                        </p>
+                      )}
+                      <div className="space-y-2">
+                        <Label htmlFor="menu-name">Menu name</Label>
+                        <Input
+                          id="menu-name"
+                          name="name"
+                          placeholder="e.g. Seasonal"
+                          required
+                          maxLength={80}
+                        />
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit">Save menu</Button>
+                      </DialogFooter>
+                    </form>
+                  </>
+                ) : page === "Categories" ? (
+                  <>
+                    <DialogHeader>
+                      <DialogTitle>Add category</DialogTitle>
+                      <DialogDescription>
+                        Add a new category to organize your menu items.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={addCategory} className="space-y-4">
+                      {categoryFormError && (
+                        <p role="alert" className="text-sm text-destructive">
+                          {categoryFormError}
+                        </p>
+                      )}
+                      <div className="space-y-2">
+                        <Label htmlFor="category-name">Category name</Label>
+                        <Input
+                          id="category-name"
+                          name="name"
+                          placeholder="e.g. Desserts"
+                          required
+                          maxLength={80}
+                        />
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit">Save category</Button>
+                      </DialogFooter>
+                    </form>
+                  </>
+                ) : (
+                  <>
                 <DialogHeader>
                   <DialogTitle>Add product</DialogTitle>
                   <DialogDescription>
@@ -416,6 +542,8 @@ export default function App() {
                     </Button>
                   </DialogFooter>
                 </form>
+                  </>
+                )}
               </DialogContent>
             </Dialog>
           </div>
@@ -447,7 +575,7 @@ export default function App() {
                   {[
                     {
                       title: "Menus",
-                      value: 4,
+                      value: menus.length,
                       icon: BookOpen,
                       caption: "Menus in your workspace",
                     },
@@ -562,17 +690,79 @@ export default function App() {
               </CardContent>
             </Card>
           )}
-          {!["Dashboard", "Products", "Analytics"].includes(page) && (
+          {page === "Menus" && (
+            <Card className="shadow-none">
+              <CardHeader>
+                <CardTitle>Menus</CardTitle>
+                <CardDescription>
+                  Menus published in this restaurant workspace.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b text-muted-foreground">
+                        <th className="p-3 font-medium">Menu name</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {menus.map((menu) => (
+                        <tr key={menu} className="border-b last:border-0">
+                          <td className="p-3 font-medium">{menu}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {menus.length === 0 && (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No menus yet. Add your first menu.
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {page === "Categories" && (
+            <Card className="shadow-none">
+              <CardHeader>
+                <CardTitle>Categories</CardTitle>
+                <CardDescription>
+                  Groups used to organize dishes on your menu.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b text-muted-foreground">
+                        <th className="p-3 font-medium">Category name</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categories.map((category) => (
+                        <tr key={category} className="border-b last:border-0">
+                          <td className="p-3 font-medium">{category}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {categories.length === 0 && (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                      No categories yet. Add your first category.
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {!["Dashboard", "Products", "Analytics", "Categories", "Menus"].includes(
+            page
+          ) && (
             <Card className="shadow-none">
               <CardContent className="flex min-h-80 flex-col items-center justify-center text-center">
                 <div className="mb-5 rounded-full bg-muted p-4">
-                  {page === "Menus" ? (
-                    <BookOpen className="size-6" />
-                  ) : page === "Categories" ? (
-                    <FolderOpen className="size-6" />
-                  ) : (
-                    <Settings2 className="size-6" />
-                  )}
+                  <Settings2 className="size-6" />
                 </div>
                 <h2 className="font-semibold">
                   {page === "Org settings" ? "Organization settings" : page} are

@@ -8,6 +8,9 @@
     },
     "render": {
       "enabled": true
+    },
+    "convex": {
+      "enabled": true
     }
   }
 }
