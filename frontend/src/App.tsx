@@ -78,12 +78,12 @@ const chartTooltip = {
   background: "#fff7ed",
   color: "#7c2d12",
 };
-const chartCardClass = "shadow-none border-orange-200 bg-orange-50";
+const chartCardClass = "shadow-none border-orange-200 !bg-white";
 
 function Charts() {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card className={chartCardClass}>
+      <Card className={chartCardClass} style={{ backgroundColor: "#fff" }}>
         <CardHeader>
           <CardTitle className="text-orange-950">User retention over time</CardTitle>
           <CardDescription className="text-orange-800/70">
@@ -151,7 +151,7 @@ function Charts() {
           </div>
         </CardContent>
       </Card>
-      <Card className={chartCardClass}>
+      <Card className={chartCardClass} style={{ backgroundColor: "#fff" }}>
         <CardHeader>
           <CardTitle className="text-orange-950">Estimated time saved</CardTitle>
           <CardDescription className="text-orange-800/70">
@@ -631,7 +631,10 @@ export default function App() {
           )}
           {page === "Dashboard" && (
             <>
-              <Card className="mb-6 gap-0 py-0 shadow-none">
+              <Card
+                className="mb-6 gap-0 py-0 shadow-none !bg-white"
+                style={{ backgroundColor: "#fff" }}
+              >
                 <CardContent className="grid p-0 sm:grid-cols-3">
                   {[
                     {
