@@ -661,8 +661,8 @@ export default function App() {
           {page === "Dashboard" && (
             <>
               <Card
-                className="mb-6 shadow-none !bg-white"
-                style={{ backgroundColor: "#fff" }}
+                className="mb-6 shadow-none !bg-[#FBF3F0]"
+                style={{ backgroundColor: "#FBF3F0" }}
               >
                 <CardHeader>
                   <CardTitle>Let's get started</CardTitle>
