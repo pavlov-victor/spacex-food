@@ -1,0 +1,158 @@
+{
+  "inputs": {
+    "product_json": "{\"id\":\"prod_4\",\"category_id\":\"cat_2\",\"category_name\":\"Glavna jela sa prilogom\",\"name\":\"Karađorđeva\",\"description\":null,\"price\":480,\"currency\":null,\"portion\":null,\"source_images\":[1],\"needs_review\":true}",
+    "target_languages": "sr,en,ru",
+    "restaurant_context": "Serbian kafana. Recipe and serving details have not been confirmed yet.",
+    "image_prompt": "Natural daylight, simple ceramic plate, realistic restaurant presentation.",
+    "table_image_url": ""
+  },
+  "events": [
+    {
+      "event": "workflow_started",
+      "data": {
+        "id": "2a3bd08f-002c-4945-8fd7-285dc4423155"
+      }
+    },
+    {
+      "event": "node_started",
+      "data": {
+        "id": "b9ef3a2a-89ea-499e-9798-a2a8c91ddd6c",
+        "node_id": "1789210000000",
+        "title": "Product input"
+      }
+    },
+    {
+      "event": "node_finished",
+      "data": {
+        "id": "b9ef3a2a-89ea-499e-9798-a2a8c91ddd6c",
+        "node_id": "1789210000000",
+        "title": "Product input",
+        "status": "succeeded",
+        "error": null,
+        "elapsed_time": 0.000223
+      }
+    },
+    {
+      "event": "node_started",
+      "data": {
+        "id": "8bcc28e3-099c-4886-8862-4f8582c259b3",
+        "node_id": "1789210000001",
+        "title": "Validate input / prepare search"
+      }
+    },
+    {
+      "event": "node_finished",
+      "data": {
+        "id": "8bcc28e3-099c-4886-8862-4f8582c259b3",
+        "node_id": "1789210000001",
+        "title": "Validate input / prepare search",
+        "status": "succeeded",
+        "error": null,
+        "elapsed_time": 0.494905
+      }
+    },
+    {
+      "event": "node_started",
+      "data": {
+        "id": "b590f804-d699-4a70-b97c-9578b7116d30",
+        "node_id": "1789210000002",
+        "title": "Exa culinary facts search"
+      }
+    },
+    {
+      "event": "node_finished",
+      "data": {
+        "id": "b590f804-d699-4a70-b97c-9578b7116d30",
+        "node_id": "1789210000002",
+        "title": "Exa culinary facts search",
+        "status": "exception",
+        "error": "Unknown error",
+        "elapsed_time": 0.000366
+      }
+    },
+    {
+      "event": "node_started",
+      "data": {
+        "id": "0d656a72-6284-49db-be9b-0ee406243491",
+        "node_id": "1789210000003",
+        "title": "Keep usable source text"
+      }
+    },
+    {
+      "event": "node_finished",
+      "data": {
+        "id": "0d656a72-6284-49db-be9b-0ee406243491",
+        "node_id": "1789210000003",
+        "title": "Keep usable source text",
+        "status": "succeeded",
+        "error": null,
+        "elapsed_time": 0.315052
+      }
+    },
+    {
+      "event": "node_started",
+      "data": {
+        "id": "dd9fff37-9e88-474c-8e26-c42482c66465",
+        "node_id": "1789210000004",
+        "title": "Grok product enrichment"
+      }
+    },
+    {
+      "event": "node_finished",
+      "data": {
+        "id": "dd9fff37-9e88-474c-8e26-c42482c66465",
+        "node_id": "1789210000004",
+        "title": "Grok product enrichment",
+        "status": "succeeded",
+        "error": null,
+        "elapsed_time": 4.338987
+      }
+    },
+    {
+      "event": "node_started",
+      "data": {
+        "id": "f734951f-74c6-4756-8dda-ba89647f06a6",
+        "node_id": "1789210000005",
+        "title": "Validate / build product and image request"
+      }
+    },
+    {
+      "event": "node_finished",
+      "data": {
+        "id": "f734951f-74c6-4756-8dda-ba89647f06a6",
+        "node_id": "1789210000005",
+        "title": "Validate / build product and image request",
+        "status": "failed",
+        "error": "Traceback (most recent call last):\n  File \"/var/sandbox/sandbox-python/tmp/5f0408eb_1c25_4d67_b6e4_8e5056c720a4.py\", line 35, in <module>\n  File \"<fd3>\", line 85, in <module>\n  File \"<fd3>\", line 35, in main\nValueError: Invalid classification suggestion: vegan\nerror: exit status 255\n",
+        "elapsed_time": 0.119267
+      }
+    },
+    {
+      "event": "workflow_finished",
+      "data": {
+        "id": "2a3bd08f-002c-4945-8fd7-285dc4423155",
+        "status": "failed",
+        "error": "Traceback (most recent call last):\n  File \"/var/sandbox/sandbox-python/tmp/5f0408eb_1c25_4d67_b6e4_8e5056c720a4.py\", line 35, in <module>\n  File \"<fd3>\", line 85, in <module>\n  File \"<fd3>\", line 35, in main\nValueError: Invalid classification suggestion: vegan\nerror: exit status 255\n",
+        "elapsed_time": 5.633911
+      }
+    }
+  ],
+  "result": {
+    "id": "2a3bd08f-002c-4945-8fd7-285dc4423155",
+    "workflow_id": "202aad1a-f358-4759-b5a8-6e4b32ced8d7",
+    "status": "failed",
+    "outputs": {},
+    "error": "Traceback (most recent call last):\n  File \"/var/sandbox/sandbox-python/tmp/5f0408eb_1c25_4d67_b6e4_8e5056c720a4.py\", line 35, in <module>\n  File \"<fd3>\", line 85, in <module>\n  File \"<fd3>\", line 35, in main\nValueError: Invalid classification suggestion: vegan\nerror: exit status 255\n",
+    "elapsed_time": 5.633911,
+    "total_tokens": 1477,
+    "total_steps": 6,
+    "created_by": {
+      "id": "7c25251b-3460-40a2-89d7-dce6f6d430ae",
+      "user": "spacex-product-api-test"
+    },
+    "created_at": 1789209918,
+    "finished_at": 1789209924,
+    "exceptions_count": 2,
+    "files": []
+  }
+}

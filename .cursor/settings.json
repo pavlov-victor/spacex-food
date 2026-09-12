@@ -1,0 +1,13 @@
+{
+  "plugins": {
+    "firecrawl": {
+      "enabled": true
+    },
+    "exa": {
+      "enabled": true
+    },
+    "render": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "node_id": "1789210000000",
+    "title": "Product input",
+    "status": "succeeded",
+    "error": null,
+    "elapsed_time": 0.000139
+  },
+  {
+    "node_id": "1789210000001",
+    "title": "Validate input / prepare search",
+    "status": "succeeded",
+    "error": null,
+    "elapsed_time": 0.662602
+  },
+  {
+    "node_id": "1789210000002",
+    "title": "Exa culinary facts search",
+    "status": "exception",
+    "error": "Unknown error",
+    "elapsed_time": 0.000342
+  },
+  {
+    "node_id": "1789210000003",
+    "title": "Keep usable source text",
+    "status": "succeeded",
+    "error": null,
+    "elapsed_time": 0.394452,
+    "outputs": {
+      "search_json": "{\"status\": \"failed\", \"sources\": []}",
+      "warnings": [
+        "Fun-fact search unavailable or returned no source text; facts must remain empty."
+      ]
+    }
+  },
+  {
+    "node_id": "1789210000004",
+    "title": "Grok product enrichment",
+    "status": "succeeded",
+    "error": null,
+    "elapsed_time": 3.302599,
+    "outputs": {
+      "text": "{\n  \"source_language\": \"sr\",\n  \"description\": \"Karađorđeva šnicla, klasično srpsko jelo.\",\n  \"translations\": {\n    \"sr\": {\n      \"name\": \"Karađorđeva\",\n      \"description\": \"Karađorđeva šnicla, klasično srpsko jelo.\"\n    },\n    \"en\": {\n      \"name\": \"Karađorđeva\",\n      \"description\": \"Karađorđeva schnitzel, a classic Serbian dish.\"\n    },\n    \"ru\": {\n      \"name\": \"Караджорджева\",\n      \"description\": \"Караджорджева шницель, классическое сербское блюдо.\"\n    }\n  },\n  \"classification_suggestions\": {\n    \"vegan\": {\n      \"value\": \"false\",\n      \"reason\": \"Traditional meat-based dish\"\n    },\n    \"low_calorie\": {\n      \"value\": \"unknown\",\n      \"reason\": \"Nutrition not supplied\"\n    },\n    \"spicy\": {\n      \"value\": \"unknown\",\n      \"reason\": \"Recipe not supplied\"\n    },\n    \"kids_menu\": {\n      \"value\": \"unknown\",\n      \"reason\": \"Restaurant confirmation needed\"\n    },\n    \"takeaway\": {\n      \"value\": \"unknown\",\n      \"reason\": \"Restaurant confirmation needed\"\n    }\n  },\n  \"possible_allergens\": [\"gluten\", \"eggs\", \"milk\"],\n  \"fun_facts\": [],\n  \"image_prompt\": \"Realistic food illustration of Karađorđeva schnitzel on a simple ceramic plate, natural daylight, realistic restaurant presentation.\",\n  \"warnings\": [\"Recipe and serving details have not been confirmed yet.\"]\n}",
+      "reasoning_content": "",
+      "usage": {
+        "prompt_tokens": 850,
+        "prompt_unit_price": "0.2",
+        "prompt_price_unit": "0.000001",
+        "prompt_price": "0.00017",
+        "completion_tokens": 598,
+        "completion_unit_price": "0.5",
+        "completion_price_unit": "0.000001",
+        "completion_price": "0.000299",
+        "total_tokens": 1448,
+        "total_price": "0.000469",
+        "currency": "USD",
+        "latency": 3.3,
+        "time_to_first_token": 0.727,
+        "time_to_generate": 2.573
+      },
+      "finish_reason": "stop"
+    }
+  },
+  {
+    "node_id": "1789210000005",
+    "title": "Validate / build product and image request",
+    "status": "failed",
+    "error": "Traceback (most recent call last):\n  File \"/var/sandbox/sandbox-python/tmp/8093a774_8596_41c3_94d4_aa57e736a6ec.py\", line 35, in <module>\n  File \"<fd3>\", line 85, in <module>\n  File \"<fd3>\", line 35, in main\nValueError: Invalid classification suggestion: vegan\nerror: exit status 255\n",
+    "elapsed_time": 0.548043,
+    "outputs": {}
+  },
+  {
+    "node_id": null,
+    "title": null,
+    "status": "failed",
+    "error": "Traceback (most recent call last):\n  File \"/var/sandbox/sandbox-python/tmp/8093a774_8596_41c3_94d4_aa57e736a6ec.py\", line 35, in <module>\n  File \"<fd3>\", line 85, in <module>\n  File \"<fd3>\", line 35, in main\nValueError: Invalid classification suggestion: vegan\nerror: exit status 255\n",
+    "elapsed_time": 5.225042,
+    "outputs": {}
+  }
+]
