@@ -63,18 +63,34 @@ const navigation = [
   { name: "Analytics", icon: BarChart3 },
   { name: "Org settings", icon: Settings2 },
 ];
+const chartInk = "#c2410c";
+const chartTick = "#9a6b4a";
+const chartGrid = "#efd5b8";
+const chartTooltip = {
+  borderRadius: 8,
+  fontSize: 12,
+  border: "1px solid #f0d2b0",
+  background: "#fff7ed",
+  color: "#7c2d12",
+};
+const chartCardClass = "shadow-none border-orange-200 bg-orange-50";
+
 function Charts() {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="shadow-none">
+      <Card className={chartCardClass}>
         <CardHeader>
-          <CardTitle>User retention over time</CardTitle>
-          <CardDescription>Guests who come back to your menu</CardDescription>
+          <CardTitle className="text-orange-950">User retention over time</CardTitle>
+          <CardDescription className="text-orange-800/70">
+            Guests who come back to your menu
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-7 flex items-end gap-3">
-            <span className="text-3xl font-semibold tracking-tight">68%</span>
-            <span className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="text-3xl font-semibold tracking-tight text-orange-800">
+              68%
+            </span>
+            <span className="mb-1 flex items-center gap-1 text-xs text-orange-700">
               <TrendingUp className="size-3.5" /> +12 pts from last month
             </span>
           </div>
@@ -90,38 +106,38 @@ function Charts() {
               >
                 <defs>
                   <linearGradient id="retention" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#18181b" stopOpacity={0.12} />
-                    <stop offset="100%" stopColor="#18181b" stopOpacity={0} />
+                    <stop offset="0%" stopColor={chartInk} stopOpacity={0.35} />
+                    <stop offset="100%" stopColor={chartInk} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
                   vertical={false}
-                  stroke="#e4e4e7"
+                  stroke={chartGrid}
                   strokeDasharray="3 3"
                 />
                 <XAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: "#71717a" }}
+                  tick={{ fontSize: 12, fill: chartTick }}
                   dy={10}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 11, fill: "#71717a" }}
+                  tick={{ fontSize: 11, fill: chartTick }}
                   tickFormatter={(v) => `${v}%`}
                   domain={[0, 80]}
                 />
                 <Tooltip
                   formatter={(v) => [`${v}%`, "Retention"]}
-                  contentStyle={{ borderRadius: 8, fontSize: 12 }}
+                  contentStyle={chartTooltip}
                 />
                 <Area
                   isAnimationActive={false}
                   type="monotone"
                   dataKey="retention"
-                  stroke="#18181b"
+                  stroke={chartInk}
                   strokeWidth={2}
                   fill="url(#retention)"
                 />
@@ -130,19 +146,19 @@ function Charts() {
           </div>
         </CardContent>
       </Card>
-      <Card className="shadow-none">
+      <Card className={chartCardClass}>
         <CardHeader>
-          <CardTitle>Estimated time saved</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-orange-950">Estimated time saved</CardTitle>
+          <CardDescription className="text-orange-800/70">
             Less menu admin. More time for your guests.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-7 flex items-end gap-2">
-            <span className="text-3xl font-semibold tracking-tight">~58</span>
-            <span className="mb-1 text-sm text-muted-foreground">
-              hours / month
+            <span className="text-3xl font-semibold tracking-tight text-orange-800">
+              ~58
             </span>
+            <span className="mb-1 text-sm text-orange-700/80">hours / month</span>
           </div>
           <div
             className="h-60 w-full"
@@ -156,32 +172,32 @@ function Charts() {
               >
                 <CartesianGrid
                   vertical={false}
-                  stroke="#e4e4e7"
+                  stroke={chartGrid}
                   strokeDasharray="3 3"
                 />
                 <XAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: "#71717a" }}
+                  tick={{ fontSize: 12, fill: chartTick }}
                   dy={10}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 11, fill: "#71717a" }}
+                  tick={{ fontSize: 11, fill: chartTick }}
                   domain={[0, 80]}
                   tickFormatter={(v) => `${v}h`}
                 />
                 <Tooltip
-                  cursor={{ fill: "#f4f4f5" }}
+                  cursor={{ fill: "#ffedd5" }}
                   formatter={(v) => [`${v} hours`, "Time saved"]}
-                  contentStyle={{ borderRadius: 8, fontSize: 12 }}
+                  contentStyle={chartTooltip}
                 />
                 <Bar
                   isAnimationActive={false}
                   dataKey="hours"
-                  fill="#27272a"
+                  fill={chartInk}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={32}
                 />
