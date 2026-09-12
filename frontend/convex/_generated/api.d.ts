@@ -11,12 +11,15 @@
 import type * as auth from "../auth.js";
 import type * as bootstrap from "../bootstrap.js";
 import type * as catalog from "../catalog.js";
+import type * as demoMenu from "../demoMenu.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
 import type * as jobs from "../jobs.js";
 import type * as lib_access from "../lib/access.js";
 import type * as lib_dify from "../lib/dify.js";
 import type * as organizations from "../organizations.js";
+import type * as storefront from "../storefront.js";
+import type * as storefrontSchema from "../storefrontSchema.js";
 import type * as validators from "../validators.js";
 import type * as workflows from "../workflows.js";
 
@@ -30,12 +33,15 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   bootstrap: typeof bootstrap;
   catalog: typeof catalog;
+  demoMenu: typeof demoMenu;
   files: typeof files;
   http: typeof http;
   jobs: typeof jobs;
   "lib/access": typeof lib_access;
   "lib/dify": typeof lib_dify;
   organizations: typeof organizations;
+  storefront: typeof storefront;
+  storefrontSchema: typeof storefrontSchema;
   validators: typeof validators;
   workflows: typeof workflows;
 }>;

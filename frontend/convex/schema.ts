@@ -3,7 +3,10 @@ import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { confirmed, jobInput, jobStatus } from "./validators";
 
+import { storefrontTables } from "./storefrontSchema";
+
 export default defineSchema({
+  ...storefrontTables,
   ...authTables,
   organizations: defineTable({
     name: v.string(),
