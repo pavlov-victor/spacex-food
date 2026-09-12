@@ -20,8 +20,8 @@ Dumper.add_representer(str, string)
 
 
 def build():
-    doc = yaml.safe_load((ROOT / '0.0.2.yml').read_text())
-    doc['app'].update(name='spacex-product', description='Product 0.0.1: descriptions, translations, classification, sourced facts and x.ai illustration.')
+    doc = yaml.safe_load((ROOT / 'menu' / '0.0.2.yml').read_text())
+    doc['app'].update(name='spacex-product', description='Product 0.0.2: normalize LLM boolean strings; descriptions, translations, classification, sourced facts and x.ai illustration.')
     doc['workflow']['environment_variables'] = [
         {'id': str(uuid.uuid5(uuid.NAMESPACE_DNS, 'spacex-product-' + key)), 'name': key, 'value_type': typ, 'value': value, 'description': description}
         for key, typ, value, description in [
@@ -67,7 +67,7 @@ def build():
     node('end', {'title': 'Product output', 'type': 'end', 'outputs': [{'variable': key, 'value_selector': [ids['final'], key], 'value_type': val['type']} for key, val in final_outputs.items()]})
     edges = [{'id': a['id'] + '-source-' + b['id'] + '-target', 'source': a['id'], 'sourceHandle': 'source', 'target': b['id'], 'targetHandle': 'target', 'type': 'custom', 'zIndex': 0, 'data': {'sourceType': a['data']['type'], 'targetType': b['data']['type'], 'isInIteration': False, 'isInLoop': False}} for a, b in zip(nodes, nodes[1:])]
     doc['workflow']['graph'] = {'nodes': nodes, 'edges': edges, 'viewport': {'x': 0, 'y': 0, 'zoom': 0.6}}
-    with (HERE / '0.0.1.yml').open('x') as file:
+    with (HERE / '0.0.2.yml').open('x') as file:
         yaml.dump(doc, file, Dumper=Dumper, allow_unicode=True, sort_keys=False, width=110)
 
 

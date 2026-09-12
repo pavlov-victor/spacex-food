@@ -26,3 +26,4 @@ Exact JSON shape (all fields required):
   "warnings": []
 }
 The translation object keys must match requested language codes, not necessarily the example. possible_allergens and warnings are arrays of strings. An empty fun_facts array is valid. Do not emit markdown.
+For classification values use JSON booleans true/false WITHOUT quotes; only "unknown" is a string.

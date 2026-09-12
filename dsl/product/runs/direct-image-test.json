@@ -1,0 +1,107 @@
+{
+  "product": {
+    "id": "prod_4",
+    "category_id": "cat_2",
+    "category_name": "Glavna jela sa prilogom",
+    "name": "Karađorđeva",
+    "price": 480,
+    "currency": null,
+    "portion": null,
+    "source_images": [
+      1
+    ],
+    "original_description": null,
+    "description": "Karađorđeva šnicla, klasično srpsko jelo.",
+    "description_generated": true,
+    "source_language": "sr",
+    "translations": {
+      "sr": {
+        "name": "Karađorđeva",
+        "description": "Karađorđeva šnicla, klasično srpsko jelo."
+      },
+      "en": {
+        "name": "Karađorđeva",
+        "description": "Karađorđeva schnitzel, a classic Serbian dish."
+      },
+      "ru": {
+        "name": "Караджорджева",
+        "description": "Караджорджева шницель, классическое сербское блюдо."
+      }
+    },
+    "confirmed_ingredients": [],
+    "classification": {
+      "vegan": {
+        "value": "unknown",
+        "source": "unconfirmed",
+        "suggested_value": false,
+        "reason": "Traditional meat-based dish"
+      },
+      "low_calorie": {
+        "value": "unknown",
+        "source": "unconfirmed",
+        "suggested_value": "unknown",
+        "reason": "Nutrition not supplied"
+      },
+      "spicy": {
+        "value": "unknown",
+        "source": "unconfirmed",
+        "suggested_value": "unknown",
+        "reason": "Recipe not supplied"
+      },
+      "kids_menu": {
+        "value": "unknown",
+        "source": "unconfirmed",
+        "suggested_value": "unknown",
+        "reason": "Restaurant confirmation needed"
+      },
+      "takeaway": {
+        "value": "unknown",
+        "source": "unconfirmed",
+        "suggested_value": "unknown",
+        "reason": "Restaurant confirmation needed"
+      },
+      "allergens": {
+        "confirmed": [],
+        "possible": [
+          "gluten",
+          "eggs",
+          "milk"
+        ],
+        "status": "unknown",
+        "list_complete": false,
+        "cross_contact": "unknown"
+      }
+    },
+    "fun_facts": [],
+    "nutrition": {
+      "calories_kcal": null,
+      "status": "unknown"
+    },
+    "needs_review": true,
+    "publication_status": "draft",
+    "image": {
+      "status": "ok",
+      "url": "https://imgen.x.ai/xai-imgen/xai-tmp-imgen-8d4fb6c8-9748-9b3d-ae73-593e0fa8a4b7-ecd81a79.jpeg",
+      "generated": true,
+      "is_actual_dish_photo": false,
+      "needs_review": true,
+      "prompt": "Realistic food illustration of Karađorđeva schnitzel on a simple ceramic plate, natural daylight, realistic restaurant presentation.",
+      "model": "grok-imagine-image-2.0",
+      "reference_used": false,
+      "url_is_temporary": true
+    }
+  },
+  "warnings": [
+    "Fun-fact search unavailable or returned no source text; facts must remain empty.",
+    "Recipe and serving details have not been confirmed yet.",
+    "AI-generated content and illustration require restaurant review."
+  ],
+  "status": "partial",
+  "processing": {
+    "text": "ok",
+    "search": "failed",
+    "facts": "empty",
+    "image": "ok"
+  },
+  "product_json": "{\"schema_version\": \"0.0.1\", \"workflow_version\": \"0.0.2\", \"workflow\": \"product\", \"product\": {\"id\": \"prod_4\", \"category_id\": \"cat_2\", \"category_name\": \"Glavna jela sa prilogom\", \"name\": \"Karađorđeva\", \"price\": 480, \"currency\": null, \"portion\": null, \"source_images\": [1], \"original_description\": null, \"description\": \"Karađorđeva šnicla, klasično srpsko jelo.\", \"description_generated\": true, \"source_language\": \"sr\", \"translations\": {\"sr\": {\"name\": \"Karađorđeva\", \"description\": \"Karađorđeva šnicla, klasično srpsko jelo.\"}, \"en\": {\"name\": \"Karađorđeva\", \"description\": \"Karađorđeva schnitzel, a classic Serbian dish.\"}, \"ru\": {\"name\": \"Караджорджева\", \"description\": \"Караджорджева шницель, классическое сербское блюдо.\"}}, \"confirmed_ingredients\": [], \"classification\": {\"vegan\": {\"value\": \"unknown\", \"source\": \"unconfirmed\", \"suggested_value\": false, \"reason\": \"Traditional meat-based dish\"}, \"low_calorie\": {\"value\": \"unknown\", \"source\": \"unconfirmed\", \"suggested_value\": \"unknown\", \"reason\": \"Nutrition not supplied\"}, \"spicy\": {\"value\": \"unknown\", \"source\": \"unconfirmed\", \"suggested_value\": \"unknown\", \"reason\": \"Recipe not supplied\"}, \"kids_menu\": {\"value\": \"unknown\", \"source\": \"unconfirmed\", \"suggested_value\": \"unknown\", \"reason\": \"Restaurant confirmation needed\"}, \"takeaway\": {\"value\": \"unknown\", \"source\": \"unconfirmed\", \"suggested_value\": \"unknown\", \"reason\": \"Restaurant confirmation needed\"}, \"allergens\": {\"confirmed\": [], \"possible\": [\"gluten\", \"eggs\", \"milk\"], \"status\": \"unknown\", \"list_complete\": false, \"cross_contact\": \"unknown\"}}, \"fun_facts\": [], \"nutrition\": {\"calories_kcal\": null, \"status\": \"unknown\"}, \"needs_review\": true, \"publication_status\": \"draft\", \"image\": {\"status\": \"ok\", \"url\": \"https://imgen.x.ai/xai-imgen/xai-tmp-imgen-8d4fb6c8-9748-9b3d-ae73-593e0fa8a4b7-ecd81a79.jpeg\", \"generated\": true, \"is_actual_dish_photo\": false, \"needs_review\": true, \"prompt\": \"Realistic food illustration of Karađorđeva schnitzel on a simple ceramic plate, natural daylight, realistic restaurant presentation.\", \"model\": \"grok-imagine-image-2.0\", \"reference_used\": false, \"url_is_temporary\": true}}, \"warnings\": [\"Fun-fact search unavailable or returned no source text; facts must remain empty.\", \"Recipe and serving details have not been confirmed yet.\", \"AI-generated content and illustration require restaurant review.\"], \"processing\": {\"text\": \"ok\", \"search\": \"failed\", \"facts\": \"empty\", \"image\": \"ok\"}, \"status\": \"partial\"}"
+}

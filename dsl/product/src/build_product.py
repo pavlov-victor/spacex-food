@@ -31,6 +31,12 @@ def main(raw: str, context_json: str, search_json: str, search_warnings: list, i
     classification = {}
     for key in ('vegan', 'low_calorie', 'spicy', 'kids_menu', 'takeaway'):
         suggestion = suggestions.get(key)
+        # Some JSON-mode responses encode booleans as strings. Normalize only
+        # the model's suggestions; restaurant confirmations remain strict.
+        if isinstance(suggestion, dict) and isinstance(suggestion.get('value'), str):
+            value = suggestion['value'].strip().lower()
+            if value in ('true', 'false'):
+                suggestion = dict(suggestion, value=value == 'true')
         if not isinstance(suggestion, dict) or not (type(suggestion.get('value')) is bool or suggestion.get('value') == 'unknown') or not isinstance(suggestion.get('reason'), str):
             raise ValueError('Invalid classification suggestion: ' + key)
         classification[key] = {'value': confirmed.get(key, 'unknown'), 'source': 'restaurant' if key in confirmed else 'unconfirmed', 'suggested_value': suggestion['value'], 'reason': suggestion['reason']}
@@ -71,5 +77,5 @@ def main(raw: str, context_json: str, search_json: str, search_warnings: list, i
         endpoint = 'https://api.x.ai/v1/images/edits'
         request['image'] = {'url': table, 'type': 'image_url'}
     product['image'] = {'status': 'pending', 'url': None, 'generated': True, 'is_actual_dish_photo': False, 'needs_review': True, 'prompt': image_prompt, 'model': image_model, 'reference_used': bool(table), 'url_is_temporary': True}
-    payload = {'schema_version': '0.0.1', 'workflow': 'product', 'product': product, 'warnings': list(dict.fromkeys(warnings)), 'processing': {'text': 'ok', 'search': search['status'], 'facts': 'sourced_draft' if accepted else 'empty', 'image': 'pending'}}
+    payload = {'schema_version': '0.0.1', 'workflow_version': '0.0.2', 'workflow': 'product', 'product': product, 'warnings': list(dict.fromkeys(warnings)), 'processing': {'text': 'ok', 'search': search['status'], 'facts': 'sourced_draft' if accepted else 'empty', 'image': 'pending'}}
     return {'draft_json': json.dumps(payload, ensure_ascii=False, allow_nan=False), 'image_endpoint': endpoint, 'image_body': json.dumps(request, ensure_ascii=False)}

@@ -6,7 +6,7 @@ import unittest
 import yaml
 
 HERE = Path(__file__).resolve().parent
-DOC = yaml.safe_load((HERE / '0.0.1.yml').read_text())
+DOC = yaml.safe_load((HERE / '0.0.2.yml').read_text())
 NODES = DOC['workflow']['graph']['nodes']
 
 
@@ -56,6 +56,17 @@ class ProductWorkflowTest(unittest.TestCase):
         self.assertFalse(result['classification']['vegan']['value'])
         self.assertTrue(result['classification']['takeaway']['value'])
         self.assertTrue(result['classification']['allergens']['list_complete'])
+
+    def test_api_boolean_string_regression(self):
+        self.enriched['classification_suggestions']['vegan']['value'] = 'false'
+        self.enriched['classification_suggestions']['spicy']['value'] = 'true'
+        result = json.loads(self.draft()['draft_json'])['product']['classification']
+        self.assertIs(result['vegan']['suggested_value'], False)
+        self.assertIs(result['spicy']['suggested_value'], True)
+        self.assertEqual(result['vegan']['value'], 'unknown')
+        self.enriched['classification_suggestions']['vegan']['value'] = 'maybe'
+        with self.assertRaises(ValueError):
+            self.draft()
 
     def test_table_reference_uses_edit_endpoint(self):
         self.inputs['table_image_url'] = 'https://example.org/table.jpg'
