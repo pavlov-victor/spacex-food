@@ -1,22 +1,24 @@
 # SpaceX food CRM
 
-React + TypeScript + Vite, Tailwind CSS, shadcn/ui (Radix, neutral), Recharts.
+React + TypeScript + Vite, shadcn/ui, Convex + Convex Auth, Dify workflows.
 
 ```sh
 npm install
+npx convex dev
+# Another terminal:
 npm run dev
 ```
 
-`npm run build` checks TypeScript and builds `dist/`. `npm run lint` runs Oxlint.
+`npx convex dev` configures `.env.local` with `VITE_CONVEX_URL`. Credentials and deployment secrets stay outside Git.
 
-Implemented from the dashboard reference: responsive navigation, menu/category/product counters, retention and time-saved charts, add-product dialog, and a searchable list of locally added products. Added products persist in localStorage. Metrics use sample data; the product count adds locally created products to the illustrative baseline of 168.
+Backend deployed to the configured development project. The first organization is **SpaceX Food Demo**, login **admin / 123**. The current preview pages still need the designer's login/logout and workflow forms. Data hooks already use Convex; anonymous callers cannot read or modify organization data.
 
-Menus, Categories, and Org settings have explicit placeholder screens awaiting references. Log out exits the demo view; authentication and Dify/backend integration are not connected. No API keys are needed by this frontend.
+- [Backend API and designer integration](../docs/backend-api.md)
+- [Render + Convex deployment](../docs/deployment.md)
+- [Team file ownership](../docs/team-development.md)
 
-UI setup follows https://ui.shadcn.com/docs/installation/vite.
+Checks: `npm run test:backend`, `npm run typecheck:backend`, `npm run build`, `npm run lint`. Browser integration: `RUN_BACKEND_E2E=1 PLAYWRIGHT_CHANNEL=chrome npx playwright test` against the configured seeded dev backend. Test output is ignored by Git.
 
-Browser checks: `npx playwright install chromium` then `npx playwright test`. Alternatively, use installed Chrome: `PLAYWRIGHT_CHANNEL=chrome npx playwright test`.
+For a new development deployment, `node scripts/configure-backend.mjs` configures authentication keys and copies the two named Dify API keys from the root `.env` over stdin without printing them. It preserves an existing auth key pair. Then run `npx convex dev --once` and `npx convex run bootstrap:seed '{}'`. The seed is internal and does not reset an existing admin password.
 
-Deployment: [Render + Convex](../docs/deployment.md).
-Team ownership and hook contract: [UI / data boundaries](../docs/team-development.md).
-Data access lives in `src/data/`, validation/types in `src/domain/`, and React operations in `src/hooks/`. Convex is installed but not connected; the current implementation uses localStorage.
+Manual live diagnostics: `node scripts/smoke-backend.mjs` checks login; adding `--import` imports the sample menu through Dify. `node scripts/check-workflows.mjs` reads saved status; `--generate` explicitly starts the sample card generation. These optional flags call external AI services and are not used by automated tests.

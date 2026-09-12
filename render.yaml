@@ -1,4 +1,4 @@
-# Current deploy: the CRM demo. Convex integration is a subsequent step.
+# CRM static frontend. Point VITE_CONVEX_URL at the configured Convex deployment.
 services:
   - type: web
     name: spacex-food-crm
@@ -11,6 +11,8 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 24.12.0
+      - key: VITE_CONVEX_URL
+        sync: false
     routes:
       - type: rewrite
         source: /*

@@ -546,7 +546,7 @@ export default function App() {
                             </td>
                             <td className="p-3">{p.category}</td>
                             <td className="whitespace-nowrap p-3 text-right">
-                              {p.price.toLocaleString("sr-RS")} RSD
+                              {p.price?.toLocaleString("sr-RS") ?? "—"} RSD
                             </td>
                           </tr>
                         ))}

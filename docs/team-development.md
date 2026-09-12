@@ -8,9 +8,9 @@
 | `frontend/src/components/`, CSS, `src/assets/`, `public/` | Дизайнер: компоненты и оформление |
 | `frontend/src/domain/` | Логика: общие типы и валидация |
 | `frontend/src/data/` | Логика: доступ к данным, сетевые запросы, адаптеры |
-| `frontend/src/hooks/` | Логика: загрузка, операции, ошибки, состояние запросов |
+| `frontend/src/hooks/`, `frontend/src/providers/` | Логика: загрузка, операции, ошибки, состояние запросов |
 | `frontend/src/fixtures/` | Логика: явно демонстрационные данные |
-| `frontend/convex/` (будет создан при подключении) | Логика: schema, queries, mutations, actions, серверная проверка доступа |
+| `frontend/convex/` | Логика: schema, queries, mutations, actions, серверная проверка доступа |
 | `dsl/`, `render.yaml`, документация интеграций | Логика / инфраструктура |
 | `main.tsx`, `package.json`, lock-файл, общие конфиги | Согласовываем изменения; зависимости добавляет один участник за раз |
 
@@ -36,7 +36,8 @@ else showError(result.error);
 - Поиск: `filterProducts(products, search)` из `@/domain/product`.
 - Форма превращает значения полей в `CreateProductInput`; бизнес-валидация и хранение находятся за hook.
 - Страницы не импортируют Convex/Dify SDK и не используют `fetch`, ключи или `localStorage` напрямую. Изменение транспорта не должно требовать переписывать вёрстку.
-- Текущий адаптер в `src/data/products.ts` использует localStorage и возвращает Promise. Convex ещё не подключён; реалтайм-подписка будет реализована внутри hook с сохранением его публичного контракта.
+- `useProducts` подключён к Convex и использует активную организацию из workspace context. Цена может быть `null`. Текущий API авторизации, импорта и генерации описан в `docs/backend-api.md`; это актуальный контракт для новых страниц.
+- Старый localStorage-адаптер удалён. Страницы используют hooks Convex; папка `src/data/` остаётся зоной для дополнительных адаптеров при необходимости.
 - Chart fixtures в `@/fixtures/dashboard` предназначены только для демо.
 
 ## Git
