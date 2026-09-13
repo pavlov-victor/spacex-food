@@ -1191,7 +1191,7 @@ export default function App() {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-medium">Recognition jobs</p>
-              <p className="mt-1 text-3xl font-semibold tracking-tight">
+              <p className="mt-1 text-xl font-semibold tracking-tight">
                 {recognitionJobCount}
               </p>
               {runningJobCount > 0 && (
