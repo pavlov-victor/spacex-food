@@ -150,6 +150,73 @@ describe("organization boundaries", () => {
       }),
     ).toHaveLength(0);
   });
+  test("deleteMenu removes the menu, dishes, and publication", async () => {
+    const s = await setup();
+    const menuId = await s.t.run(async (ctx) =>
+      ctx.db.insert("menus", {
+        organizationId: s.organizationId,
+        name: "Lunch",
+        status: "draft",
+        fileIds: [],
+        warnings: [],
+        productCount: 1,
+      }),
+    );
+    await s.owner.mutation(api.catalog.createProduct, {
+      organizationId: s.organizationId,
+      menuId,
+      name: "Soup",
+      category: "Starters",
+      price: 390,
+      description: "",
+    });
+    const publicMenuId = await s.t.run(async (ctx) => {
+      const id = await ctx.db.insert("publicMenus", {
+        organizationId: s.organizationId,
+        menuId,
+        slug: "lunch-test",
+        name: "Lunch",
+        published: true,
+        demo: false,
+      });
+      await ctx.db.insert("publicMenuItems", {
+        publicMenuId: id,
+        name: "Soup",
+        description: "",
+        category: "Starters",
+        price: 390,
+        currency: "RSD",
+        portion: "",
+        tags: [],
+        ingredients: [],
+        allergens: [],
+        allergensComplete: false,
+        imageUrl: null,
+      });
+      return id;
+    });
+    await s.owner.mutation(api.catalog.deleteMenu, {
+      organizationId: s.organizationId,
+      menuId,
+    });
+    expect(
+      (await s.owner.query(api.catalog.menus, {
+        organizationId: s.organizationId,
+      })).some((menu) => menu._id === menuId),
+    ).toBe(false);
+    expect(
+      (
+        await s.owner.query(api.catalog.products, {
+          organizationId: s.organizationId,
+          menuId,
+          paginationOpts: { numItems: 10, cursor: null },
+        })
+      ).page,
+    ).toHaveLength(0);
+    expect(
+      await s.t.run((ctx) => ctx.db.get(publicMenuId)),
+    ).toBeNull();
+  });
   test("deleteCategory removes the category and its dishes", async () => {
     const s = await setup();
     const extras = await s.owner.query(api.catalog.categories, {

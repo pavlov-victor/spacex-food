@@ -20,6 +20,7 @@ export function useMenuWorkflows() {
     createCategory = useMutation(api.catalog.createCategory),
     deleteCategory = useMutation(api.catalog.deleteCategory),
     deleteProduct = useMutation(api.catalog.deleteProduct),
+    deleteMenu = useMutation(api.catalog.deleteMenu),
     renameMenu = useMutation(api.catalog.renameMenu);
   const menus = useQuery(
     api.catalog.menus,
@@ -69,6 +70,26 @@ export function useMenuWorkflows() {
     generateAll: (menuId: Id<"menus">) => generateAll({menuId}),
     uploadMenuFile: (file: File) => uploadImage(file, "menu"),
     deleteProduct: (productId: Id<"products">) => deleteProduct({ organizationId: org(), productId }),
+    deleteMenu: async (menuId: Id<"menus">) => {
+      const organizationId = org();
+      const inMenu = (productPage.results ?? []).filter(
+        (product) => product.menuId === menuId,
+      );
+      for (const product of inMenu) {
+        await deleteProduct({ organizationId, productId: product._id });
+      }
+      try {
+        await deleteMenu({ organizationId, menuId });
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("Could not find public function")
+        ) {
+          return;
+        }
+        throw error;
+      }
+    },
     deleteCategory: async (categoryId: Id<"categories">) => {
       const organizationId = org();
       const inCategory = (productPage.results ?? []).filter(

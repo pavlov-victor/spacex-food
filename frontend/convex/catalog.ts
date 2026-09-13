@@ -288,3 +288,73 @@ export const renameMenu = mutation({
     return null;
   },
 });
+
+export const deleteMenu = mutation({
+  args: {
+    organizationId: v.id("organizations"),
+    menuId: v.id("menus"),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await requireOrganization(ctx, args.organizationId);
+    const menu = await ctx.db.get(args.menuId);
+    if (!menu || menu.organizationId !== args.organizationId)
+      throw new Error("Menu not found.");
+    if (menu.status === "processing")
+      throw new Error("Wait for menu recognition to finish.");
+    const jobs = await ctx.db
+      .query("jobs")
+      .withIndex("by_organizationId", (q) =>
+        q.eq("organizationId", args.organizationId),
+      )
+      .take(200);
+    const menuJobs = jobs.filter((job) => job.menuId === args.menuId);
+    if (
+      menuJobs.some(
+        (job) => job.status === "queued" || job.status === "running",
+      )
+    )
+      throw new Error("Wait for menu recognition to finish.");
+    const products = await ctx.db
+      .query("products")
+      .withIndex("by_organizationId_and_menuId", (q) =>
+        q.eq("organizationId", args.organizationId).eq("menuId", args.menuId),
+      )
+      .take(500);
+    if (products.some((product) => product.activeJobId))
+      throw new Error("Wait for product generation to finish.");
+    for (const product of products) {
+      const cards = await ctx.db
+        .query("cards")
+        .withIndex("by_organizationId_and_productId", (q) =>
+          q
+            .eq("organizationId", args.organizationId)
+            .eq("productId", product._id),
+        )
+        .take(50);
+      for (const card of cards) await ctx.db.delete(card._id);
+      await ctx.db.delete(product._id);
+    }
+    const publications = await ctx.db
+      .query("publicMenus")
+      .withIndex("by_organizationId", (q) =>
+        q.eq("organizationId", args.organizationId),
+      )
+      .take(100);
+    for (const publication of publications) {
+      if (publication.menuId !== args.menuId) continue;
+      const items = await ctx.db
+        .query("publicMenuItems")
+        .withIndex("by_menu", (q) => q.eq("publicMenuId", publication._id))
+        .take(500);
+      for (const item of items) await ctx.db.delete(item._id);
+      await ctx.db.delete(publication._id);
+    }
+    for (const job of menuJobs) await ctx.db.delete(job._id);
+    if (menu.pdfStorageId) await ctx.storage.delete(menu.pdfStorageId);
+    if (menu.pdfPreviewStorageId)
+      await ctx.storage.delete(menu.pdfPreviewStorageId);
+    await ctx.db.delete(args.menuId);
+    return null;
+  },
+});
