@@ -959,71 +959,13 @@ export default function App() {
                           className="border-b last:border-0"
                         >
                           <td className="p-3 font-medium">
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="min-w-0">
-                                <span>{menu.name}</span>
-                                {"_id" in menu && (
-                                  <div className="mt-2 flex flex-wrap gap-2">
-                                    <MenuPdf menuId={menu._id} name={menu.name} />
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => {
-                                        setMenuFilter(menu._id);
-                                        setCategoryFilter("");
-                                        setSearch("");
-                                        setPage("Products");
-                                      }}
-                                    >
-                                      View
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      disabled={menu.status !== "draft"}
-                                      onClick={() =>
-                                        setPublishingMenu({
-                                          id: menu._id,
-                                          name: menu.name,
-                                        })
-                                      }
-                                    >
-                                      Publish QR
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      disabled={
-                                        batchBusy || menu.status !== "draft"
-                                      }
-                                      onClick={async () => {
-                                        setBatchBusy(true);
-                                        try {
-                                          const result = await flow.generateAll(
-                                            menu._id,
-                                          );
-                                          setNotice(
-                                            `Queued ${result.queued} dishes for generation. ${result.skipped} already generated or in progress.`,
-                                          );
-                                        } catch {
-                                          setNotice(
-                                            "Could not start generation. Please try again.",
-                                          );
-                                        } finally {
-                                          setBatchBusy(false);
-                                        }
-                                      }}
-                                    >
-                                      {batchBusy ? "Starting…" : "Generate cards"}
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
+                            <div className="flex items-center gap-1">
+                              <span>{menu.name}</span>
                               {session.isAuthenticated && "_id" in menu && (
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="icon-sm"
-                                  className="self-center"
                                   aria-label={`Delete ${menu.name}`}
                                   disabled={removingId === String(menu._id)}
                                   onClick={() => {
@@ -1055,6 +997,61 @@ export default function App() {
                                 </Button>
                               )}
                             </div>
+                            {"_id" in menu && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                <MenuPdf menuId={menu._id} name={menu.name} />
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setMenuFilter(menu._id);
+                                    setCategoryFilter("");
+                                    setSearch("");
+                                    setPage("Products");
+                                  }}
+                                >
+                                  View
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  disabled={menu.status !== "draft"}
+                                  onClick={() =>
+                                    setPublishingMenu({
+                                      id: menu._id,
+                                      name: menu.name,
+                                    })
+                                  }
+                                >
+                                  Publish QR
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={
+                                    batchBusy || menu.status !== "draft"
+                                  }
+                                  onClick={async () => {
+                                    setBatchBusy(true);
+                                    try {
+                                      const result = await flow.generateAll(
+                                        menu._id,
+                                      );
+                                      setNotice(
+                                        `Queued ${result.queued} dishes for generation. ${result.skipped} already generated or in progress.`,
+                                      );
+                                    } catch {
+                                      setNotice(
+                                        "Could not start generation. Please try again.",
+                                      );
+                                    } finally {
+                                      setBatchBusy(false);
+                                    }
+                                  }}
+                                >
+                                  {batchBusy ? "Starting…" : "Generate cards"}
+                                </Button>
+                              </div>
+                            )}
                           </td>
                           <td className="p-3 capitalize text-muted-foreground">
                             {"status" in menu ? menu.status : "draft"}
