@@ -1019,7 +1019,6 @@ export default function App() {
                                 </Button>
                                 <Button
                                   size="sm"
-                                  variant="outline"
                                   disabled={menu.status !== "draft"}
                                   onClick={() =>
                                     setPublishingMenu({
