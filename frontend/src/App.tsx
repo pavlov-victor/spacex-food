@@ -941,12 +941,6 @@ export default function App() {
           )}
           {page === "Menus" && (
             <Card className="shadow-none">
-              <CardHeader>
-                <CardTitle>Menus</CardTitle>
-                <CardDescription>
-                  Menus published in this restaurant workspace.
-                </CardDescription>
-              </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
