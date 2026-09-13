@@ -2,7 +2,6 @@ import { MenuPdf } from "@/components/crm/menu-pdf";
 import { ProductEditor } from "@/components/crm/product-editor";
 import { MenuPublisher } from "@/components/crm/menu-publisher";
 import { WorkspaceSettings } from "@/components/crm/workspace-settings";
-import { useWorkspace } from "@/hooks/use-workspace";
 import type { Product } from "@/domain/product";
 import { useState } from "react";
 import { useProducts } from "@/hooks/use-products";
@@ -283,7 +282,6 @@ function Charts() {
 export default function App() {
   const session = useSession();
   const flow = useMenuWorkflows();
-  const workspace = useWorkspace();
   const [selectedProduct, setSelectedProduct] = useState<Product['id'] | null>(null);
   const [publishingMenu, setPublishingMenu] = useState<{ id: NonNullable<Product['menuId']>; name: string } | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -446,7 +444,6 @@ export default function App() {
             SpaceX food
           </span>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>{session.isAuthenticated ? workspace.organizations.find(o => o._id === workspace.organizationId)?.name ?? 'Restaurant settings' : 'Create restaurant'}</Button>
         <Button variant="outline" size="sm" onClick={() => void session.logout()}><LogOut className="size-4" />Log out</Button>
       </header>
       <div className="flex min-h-[calc(100svh-72px)]">
@@ -461,9 +458,13 @@ export default function App() {
               <button
                 key={name}
                 onClick={() => {
-                  setPage(name);
                   setMobileNav(false);
                   setNotice("");
+                  if (name === "Org settings") {
+                    setSettingsOpen(true);
+                    return;
+                  }
+                  setPage(name);
                 }}
                 aria-current={page === name ? "page" : undefined}
                 className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring ${page === name ? "bg-accent font-medium text-foreground" : "text-muted-foreground"}`}

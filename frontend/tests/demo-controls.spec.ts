@@ -5,8 +5,7 @@ test('restaurant controls, product editor and publication QR are connected', asy
   await signInDemo(page);
   await page.goto('/');
   await expect(page.getByRole('button',{name:'Log out',exact:true})).toBeVisible();
-  const header = page.locator('header').first();
-  await header.getByRole('button').filter({hasNotText:'Log out'}).last().click();
+  await page.getByRole('button', { name: 'Org settings', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   const choice=page.getByLabel('Active restaurant');
   const option=await choice.locator('option').filter({hasText:'Integration demo'}).last().getAttribute('value');
