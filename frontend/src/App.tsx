@@ -214,7 +214,7 @@ function Charts() {
           </div>
         </CardContent>
       </Card>
-      <Card className={chartCardClass} style={{ backgroundColor: "#fff" }}>
+      <Card className={`${chartCardClass} lg:col-span-2`} style={{ backgroundColor: "#fff" }}>
         <CardHeader>
           <CardTitle className="text-orange-950">Adoption</CardTitle>
           <CardDescription className="text-orange-800/70">
